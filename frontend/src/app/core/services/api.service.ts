@@ -246,6 +246,7 @@ export class ApiService {
    * Normalize a raw chat query response from Lambda 08 → ChatQueryResponse.
    *
    * Handles:
+   *   - Lambda 08 wraps Lambda 06 response in 'body' field
    *   - confidence: Lambda 06 returns { score, calibrated }; we flatten to number.
    *   - grounded:   Lambda 06 returns grounding.status string; we map to boolean.
    *   - execution_time_ms: Backend uses metrics.total_ms.
@@ -254,34 +255,47 @@ export class ApiService {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private normalizeChatResponse(raw: any): ChatQueryResponse {
+    // Lambda 08 wraps Lambda 06's response in a 'body' field
+    // Handle both direct response and wrapped response
+    let data = raw;
+    if (raw.body && typeof raw.body === 'object') {
+      data = raw.body;
+    } else if (raw.body && typeof raw.body === 'string') {
+      try {
+        data = JSON.parse(raw.body);
+      } catch {
+        data = raw;
+      }
+    }
+
     const confidence =
-      typeof raw.confidence === 'object' && raw.confidence !== null
-        ? (raw.confidence?.score ?? 0)
-        : (typeof raw.confidence === 'number' ? raw.confidence : 0);
+      typeof data.confidence === 'object' && data.confidence !== null
+        ? (data.confidence?.score ?? 0)
+        : (typeof data.confidence === 'number' ? data.confidence : 0);
 
     const grounded =
-      typeof raw.grounded === 'boolean'
-        ? raw.grounded
-        : raw.grounding?.status === 'grounded' || raw.grounding?.groundedness_score >= 0.7;
+      typeof data.grounded === 'boolean'
+        ? data.grounded
+        : data.grounding?.status === 'grounded' || (data.grounding?.groundedness_score ?? 0) >= 0.7;
 
     const executionMs =
-      raw.execution_time_ms ??
-      raw.metrics?.total_ms ??
+      data.execution_time_ms ??
+      data.metrics?.total_ms ??
       0;
 
     return {
-      statusCode:             raw.statusCode ?? 200,
-      answer:                 raw.answer ?? '',
+      statusCode:             raw.statusCode ?? data.statusCode ?? 200,
+      answer:                 data.answer ?? '',
       confidence,
       grounded,
       execution_time_ms:      executionMs,
-      sources:                (raw.sources ?? []).map(this.normalizeSourceChunk),
-      follow_up_suggestions:  raw.follow_up_suggestions ?? [],
-      session_id:             raw.session_id ?? '',
-      grounding:              raw.grounding,
-      persona:                raw.persona,
-      intent:                 raw.intent,
-      metrics:                raw.metrics,
+      sources:                (data.sources ?? []).map((s: any) => this.normalizeSourceChunk(s)),
+      follow_up_suggestions:  data.follow_up_suggestions ?? [],
+      session_id:             data.session_id ?? raw.session_id ?? '',
+      grounding:              data.grounding,
+      persona:                data.persona ?? raw.persona,
+      intent:                 data.intent,
+      metrics:                data.metrics,
     } as ChatQueryResponse;
   }
 

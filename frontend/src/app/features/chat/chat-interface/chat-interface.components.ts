@@ -2,10 +2,11 @@ import { Component, inject, signal, ViewChild, ElementRef, OnInit, OnDestroy, Af
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { StateService } from '@app/core/services/state.service';
 import { ApiService } from '@app/core/services/api.service';
 import { AuthService } from '@app/core/services/auth.service';
-import { PERSONAS, VALIDATION, Persona, ChatMessage, ChatQueryResponse } from '@app/core/models';
+import { PERSONAS, VALIDATION, Persona } from '@app/core/models';
 import { MessageComponent } from '../message/message.component';
 
 /**
@@ -404,30 +405,31 @@ export class ChatInterfaceComponent implements OnInit, OnDestroy, AfterViewCheck
     this.shouldScrollToBottom = true;
     this.state.setLoading(true);
 
-    // Send via REST API (which may trigger WebSocket streaming)
+    // Send via REST API
     try {
-      const response = await this.api.sendQuery({
+      const response = await firstValueFrom(this.api.sendQuery({
         query,
         session_id: this.state.sessionId(),
         persona: this.state.selectedPersona()?.apiPersona
-      }).toPromise();
+      }));
 
-      // If REST returns complete response (non-streaming)
-      if (response && !this.state.currentStreamingMessage()) {
+      // Handle response
+      if (response) {
         this.state.addAssistantMessage(
-          response.answer,
-          response.confidence,
-          response.grounded,
-          response.sources,
-          response.follow_up_suggestions
+          response.answer || 'No response received.',
+          response.confidence ?? 0,
+          response.grounded ?? false,
+          response.sources ?? [],
+          response.follow_up_suggestions ?? []
         );
-        this.state.setLoading(false);
-        this.shouldScrollToBottom = true;
       }
-    } catch (error) {
+      this.state.setLoading(false);
+      this.shouldScrollToBottom = true;
+    } catch (error: any) {
       console.error('Send query failed:', error);
+      const errorMessage = error?.message || 'Sorry, an error occurred while processing your request. Please try again.';
       this.state.addAssistantMessage(
-        'Sorry, an error occurred while processing your request. Please try again.',
+        errorMessage,
         0,
         false,
         []
