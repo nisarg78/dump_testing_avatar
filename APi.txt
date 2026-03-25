@@ -1,0 +1,430 @@
+Triggers (9)
+
+Trigger
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/documents/upload
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/documents/upload
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /documents/upload
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: e7141c21-d50a-5956-be00-72796cae73d3
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/documents/list
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/documents/list
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /documents/list
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: 67d7d998-9eb2-59a8-a399-df56f73a1830
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/documents/status/{document_id}
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/documents/status/{document_id}
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /documents/status/{document_id}
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: ce8fed06-c7f6-5f40-b363-1fcf36405560
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/chat/query
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/chat/query
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /chat/query
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: b43d3dd9-bcea-5580-ad1d-c7fd455c48ef
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/auth/login
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/auth/login
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /auth/login
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: 13cf61d1-1dd6-52a3-ac0e-4922f0d1fd64
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/auth/register
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/auth/register
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /auth/register
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: 83043251-7c48-58f5-bdca-8c96b5563108
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/documents/*
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/documents/*
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /documents/*
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: 97f346b4-d329-520a-bad5-f125973c4c52
+
+
+
+API Gateway: mech-avatar-http-api
+
+arn:aws:execute-api:ca-central-1:939620275271:g95hdf84lk/*/*/chat/history/*
+
+API endpoint: https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev/chat/history/*
+
+
+
+Details
+
+API type: HTTP
+
+Authorization: NONE
+
+CORS: No
+
+Detailed metrics enabled: No
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /chat/history/*
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: 6c7dedcd-244e-5847-99da-be88ed5b88a7
+
+
+
+API Gateway: mechavatar-lab-cac1-api
+
+arn:aws:execute-api:ca-central-1:939620275271:s5df2losqi/*/*/*
+
+API endpoint: https://s5df2losqi.execute-api.ca-central-1.amazonaws.com/dev/{proxy+}
+
+
+
+Details
+
+API type: REST
+
+Authorization: NONE
+
+isComplexStatement: No
+
+Method: ANY
+
+Resource path: /{proxy+}
+
+Service principal: apigateway.amazonaws.com
+
+Stage: dev
+
+Statement ID: e2b7941a-2788-5734-8e9d-7d3f5e7d97f3
+
+Stage details
+
+Delete
+
+Edit
+
+Details
+
+Name
+
+dev
+
+Created
+
+March 10, 2026 9:45 AM
+
+Last updated
+
+March 25, 2026 8:51 AM
+
+Invoke URL
+
+https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev
+
+Description
+
+None
+
+Attached deployment
+
+Automatic Deployment
+
+Disabled
+
+Deployment ID
+
+8ae5n2
+
+Deployment created
+
+March 24, 2026 1:54 PM
+
+Deployment description
+
+Automatic deployment triggered by changes to the Api configuration
+
+Stage variables
+
+
+
+
+mech-avatar-http-api
+
+Stage: -
+
+
+
+
+
+
+
+Deploy
+
+API details
+
+Edit
+
+API ID
+
+g95hdf84lk
+
+Protocol
+
+HTTP
+
+Created
+
+2026-03-10
+
+Description
+
+No Description
+
+IP address type
+
+IPv4
+
+Default endpoint
+
+Enabled
+
+https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com
+
+ARN
+
+arn:aws:apigateway:ca-central-1::/apis/g95hdf84lk
+
+2 results available
+
+Stages for mech-avatar-http-api (2)
+
+
+
+
+
+
+
+Stage name
+
+Invoke URL
+
+Attached deployment
+
+Auto deploy
+
+Last updated
+
+$default
+
+https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com
+
+8ae5n2
+
+enabled
+
+2026-03-24
+
+dev
+
+https://g95hdf84lk.execute-api.ca-central-1.amazonaws.com/dev
+
+0exkch
+
+disabled
+
+2026-03-25
+
+0 results available
+
+Tags (0)
+
+

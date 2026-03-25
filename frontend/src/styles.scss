@@ -1,0 +1,376 @@
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles - BMO Brand Colors */
+:root {
+  /* BMO Primary Colors (Official Palette) */
+  --bmo-blue: #0079C1;        /* Lochmara Blue - Primary */
+  --bmo-blue-dark: #005587;   /* Secondary/Dark Blue */
+  --bmo-blue-light: #00a9e0;
+  --bmo-navy: #002d72;
+  
+  /* BMO Accent Colors */
+  --bmo-red: #ED1C24;         /* Crimson Red */
+  --bmo-green: #00843d;
+  --bmo-gold: #ffc72c;
+  
+  /* Primary Palette (BMO Lochmara Blue based) */
+  --primary-50: #e6f4fb;
+  --primary-100: #cce9f7;
+  --primary-200: #99d3ef;
+  --primary-300: #66bde7;
+  --primary-400: #33a7df;
+  --primary-500: #0079C1;
+  --primary-600: #006aa8;
+  --primary-700: #005587;
+  --primary-800: #004a73;
+  --primary-900: #003d5a;
+
+  /* Secondary Palette (BMO Light Blue based) */
+  --secondary-50: #e6f7fc;
+  --secondary-100: #cceff9;
+  --secondary-200: #99dff3;
+  --secondary-300: #66cfed;
+  --secondary-400: #33bfe7;
+  --secondary-500: #00a9e0;
+  --secondary-600: #0098c9;
+  --secondary-700: #0087b2;
+  --secondary-800: #00769b;
+  --secondary-900: #006584;
+  
+  /* Additional BMO Colors */
+  --bmo-success: #00843d;
+  --bmo-warning: #ffc72c;
+  --bmo-error: #ED1C24;
+  --bmo-info: #00a9e0;
+}
+
+/* Base Styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* BMO Button Styles */
+@layer components {
+  .btn-bmo-primary {
+    @apply px-6 py-3 font-semibold text-white rounded-lg transition-all duration-200;
+    background: linear-gradient(135deg, var(--bmo-blue) 0%, var(--bmo-blue-dark) 100%);
+    box-shadow: 0 4px 12px rgba(0, 121, 193, 0.3);
+  }
+  
+  .btn-bmo-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 121, 193, 0.4);
+  }
+  
+  .btn-bmo-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .btn-bmo-secondary {
+    @apply px-6 py-3 font-semibold rounded-lg transition-all duration-200;
+    background: white;
+    border: 2px solid var(--bmo-blue);
+    color: var(--bmo-blue);
+  }
+  
+  .btn-bmo-secondary:hover {
+    background: var(--primary-50);
+  }
+  
+  .btn-bmo-danger {
+    @apply px-6 py-3 font-semibold text-white rounded-lg transition-all duration-200;
+    background: linear-gradient(135deg, var(--bmo-red) 0%, #c41920 100%);
+  }
+  
+  /* BMO Card Styles */
+  .card-bmo {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200;
+    transition: all 0.2s ease;
+  }
+  
+  .card-bmo:hover {
+    @apply shadow-md;
+    border-color: var(--primary-200);
+  }
+  
+  .card-bmo-blue {
+    @apply rounded-xl text-white;
+    background: linear-gradient(135deg, var(--bmo-blue) 0%, var(--bmo-navy) 100%);
+  }
+  
+  /* BMO Input Styles */
+  .input-bmo {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg transition-all duration-200;
+    background: #fafbfc;
+  }
+  
+  .input-bmo:focus {
+    @apply outline-none;
+    border-color: var(--bmo-blue);
+    box-shadow: 0 0 0 3px rgba(0, 121, 193, 0.1);
+    background: white;
+  }
+  
+  /* BMO Badge Styles */
+  .badge-bmo {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: var(--primary-100);
+    color: var(--primary-700);
+  }
+  
+  .badge-bmo-success {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: #dcfce7;
+    color: #166534;
+  }
+  
+  .badge-bmo-warning {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  .badge-bmo-error {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: #fee2e2;
+    color: #dc2626;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .gradient-text {
+    color: #0079C1;
+  }
+
+  .gradient-bg {
+    background-color: #0079C1;
+  }
+
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-sm;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #0078C1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Message Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-enter {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Tooltip Styles */
+.tooltip {
+  @apply invisible absolute z-50 bg-gray-900 text-white text-sm px-2 py-1 rounded shadow-lg;
+}
+
+.tooltip-trigger:hover .tooltip {
+  @apply visible;
+}
+
+/* Focus Ring */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+}
+
+/* Button Base */
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-primary {
+  @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+}
+
+.btn-secondary {
+  @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500;
+}
+
+.btn-outline {
+  @apply btn border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
+}
+
+.btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+}
+
+/* Input Base */
+.input-base {
+  @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm;
+}
+
+/* Card Styles */
+.card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200;
+}
+
+.card-hover {
+  @apply card hover:shadow-md hover:border-primary-200 transition-all cursor-pointer;
+}
+
+/* Badge Styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply badge bg-primary-100 text-primary-800;
+}
+
+.badge-secondary {
+  @apply badge bg-secondary-100 text-secondary-800;
+}
+
+.badge-success {
+  @apply badge bg-green-100 text-green-800;
+}
+
+.badge-warning {
+  @apply badge bg-yellow-100 text-yellow-800;
+}
+
+.badge-danger {
+  @apply badge bg-red-100 text-red-800;
+}
+
+/* Markdown Content Styling */
+.markdown-content {
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-gray-900 mt-4 mb-2;
+  }
+
+  h1 { @apply text-2xl; }
+  h2 { @apply text-xl; }
+  h3 { @apply text-lg; }
+
+  p { @apply mb-3 leading-relaxed; }
+
+  ul, ol {
+    @apply mb-3 pl-6;
+  }
+
+  ul { @apply list-disc; }
+  ol { @apply list-decimal; }
+
+  li { @apply mb-1; }
+
+  code {
+    @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono text-primary-700;
+  }
+
+  pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4;
+
+    code {
+      @apply bg-transparent px-0 py-0 text-inherit;
+    }
+  }
+
+  blockquote {
+    @apply border-l-4 border-primary-300 pl-4 italic text-gray-600 my-4;
+  }
+
+  a {
+    @apply text-primary-600 hover:text-primary-700 underline;
+  }
+
+  table {
+    @apply w-full border-collapse mb-4;
+
+    th, td {
+      @apply border border-gray-200 px-3 py-2 text-left;
+    }
+
+    th {
+      @apply bg-gray-50 font-semibold;
+    }
+  }
+}
+
+/* Persona Colors */
+.persona-new-joiner {
+  @apply bg-blue-50 border-blue-200 text-blue-800;
+}
+
+.persona-designer {
+  @apply bg-purple-50 border-purple-200 text-purple-800;
+}
+
+.persona-qa-tester {
+  @apply bg-orange-50 border-orange-200 text-orange-800;
+}
+
+.persona-developer {
+  @apply bg-green-50 border-green-200 text-green-800;
+}
+
+.persona-tech-support {
+  @apply bg-red-50 border-red-200 text-red-800;
+}
+
+.persona-business-support {
+  @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+}

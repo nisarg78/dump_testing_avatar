@@ -1,0 +1,118 @@
+# =============================================================================
+# Docker Compose for AI Assistant Frontend + Backend
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # Frontend - Angular with Nginx
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: ai-assistant-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+    networks:
+      - ai-network
+    environment:
+      - TZ=UTC
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    volumes:
+      # Mount SSL certificates if using HTTPS
+      # - ./ssl:/etc/nginx/ssl:ro
+      # Mount custom nginx config for overrides
+      # - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx-logs:/var/log/nginx
+
+  # ---------------------------------------------------------------------------
+  # Backend API (placeholder - replace with actual backend config)
+  # ---------------------------------------------------------------------------
+  api:
+    image: your-api-image:latest
+    container_name: ai-assistant-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - ai-network
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      # -----------------------------------------------------------------------
+      # ⚠️  MECH Avatar Lambda 08 environment variables — fill in before deploy
+      # -----------------------------------------------------------------------
+      - AWS_DEFAULT_REGION=ca-central-1
+      - LAMBDA_06_ARN=arn:aws:lambda:ca-central-1:ACCOUNT_ID:function:mech-avatar-lambda-06
+      - LAMBDA_07_ARN=arn:aws:lambda:ca-central-1:ACCOUNT_ID:function:mech-avatar-lambda-07
+      - S3_BUCKET_NAME=mech-avatar-lab-raw
+      - COGNITO_USER_POOL_ID=ca-central-1_XXXXXXXXX
+      - COGNITO_APP_CLIENT_ID=REPLACE_WITH_APP_CLIENT_ID
+      - DOCUMENTS_TABLE=mech-avatar-documents
+      - MEMORY_TABLE=mech-avatar-memory
+      - SESSIONS_TABLE=mech-avatar-user-sessions
+      - RATE_LIMIT_TABLE=mech-avatar-rate-limits
+      # Comma-separated allowed CORS origins
+      - ALLOWED_ORIGINS=http://localhost:4200,http://localhost:80,https://REPLACE_WITH_FRONTEND_DOMAIN
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - api-data:/app/data
+
+  # ---------------------------------------------------------------------------
+  # Development Frontend
+  # ---------------------------------------------------------------------------
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: ai-assistant-frontend-dev
+    ports:
+      - "4200:4200"
+    networks:
+      - ai-network
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm start -- --host 0.0.0.0 --poll 2000
+    profiles:
+      - development
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  ai-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+
+# -----------------------------------------------------------------------------
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  nginx-logs:
+    driver: local
+  api-data:
+    driver: local
