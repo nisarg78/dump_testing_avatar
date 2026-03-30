@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MechAvatar — Complete System Architecture</title>
+<style>
+:root {
+  --bd: #003366; --bm: #2E75B6; --bl: #4A90D9; --bbg: #E8F4FD;
+  --gn: #00B050; --gbg: #E6F9EE;
+  --or: #ED7D31; --obg: #FFF3E8;
+  --rd: #C00000; --rbg: #FFF0F0;
+  --g1: #F8F9FA; --g2: #E9ECEF; --g3: #DEE2E6; --g6: #6C757D; --g8: #343A40;
+  --w: white;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+@page { size: A4 landscape; margin: 12mm 14mm; }
+body { font-family: 'Segoe UI','Helvetica Neue',Arial,sans-serif; font-size: 9.5px; color: var(--g8); line-height: 1.45; background: var(--w); }
+.pg { width: 273mm; min-height: 188mm; padding: 8mm; page-break-after: always; position: relative; }
+.pg:last-child { page-break-after: avoid; }
+
+/* Header/footer on every page */
+.phdr { position:absolute; top:3mm; left:8mm; right:8mm; display:flex; justify-content:space-between; font-size:7.5px; color:var(--g6); border-bottom:0.5px solid var(--g3); padding-bottom:2px; }
+.pftr { position:absolute; bottom:2mm; left:8mm; right:8mm; display:flex; justify-content:space-between; font-size:7px; color:var(--g6); border-top:0.5px solid var(--g3); padding-top:2px; }
+
+/* Cover */
+.cover { display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; background:linear-gradient(145deg,#001a33 0%,#003366 35%,#1a5276 65%,#2E75B6 100%); color:var(--w); }
+.cover h1 { font-size:44px; font-weight:800; letter-spacing:-1.5px; }
+.cover .sub { font-size:17px; font-weight:300; opacity:.85; margin:6px 0 25px; }
+.cover .pills { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+.cover .pill { background:rgba(255,255,255,.12); padding:5px 14px; border-radius:16px; font-size:9.5px; border:1px solid rgba(255,255,255,.2); }
+.cover .meta { margin-top:30px; font-size:10px; opacity:.65; }
+
+/* Headings */
+h2 { font-size:16px; font-weight:700; color:var(--bd); margin:8px 0 5px; padding-bottom:3px; border-bottom:2px solid var(--bm); }
+h3 { font-size:12px; font-weight:600; color:var(--bm); margin:7px 0 4px; }
+h4 { font-size:10px; font-weight:600; color:var(--g8); margin:5px 0 3px; }
+p, li { font-size:9.2px; }
+p { margin-bottom:4px; }
+
+/* Tables */
+table { width:100%; border-collapse:collapse; margin:4px 0; font-size:8.5px; }
+th { background:var(--bd); color:var(--w); padding:4px 6px; text-align:left; font-weight:600; font-size:8px; }
+td { padding:3px 6px; border-bottom:1px solid var(--g2); vertical-align:top; }
+tr:nth-child(even) td { background:var(--g1); }
+.sm-tbl th { font-size:7.5px; padding:3px 5px; }
+.sm-tbl td { font-size:8px; padding:2px 5px; }
+
+/* Diagram */
+.dia { border:1px solid var(--g2); border-radius:6px; padding:8px; margin:5px 0; background:var(--g1); }
+.dia-t { font-size:10px; font-weight:700; color:var(--bd); margin-bottom:5px; letter-spacing:.3px; }
+
+/* Info boxes */
+.ib { padding:5px 8px; border-radius:4px; margin:4px 0; font-size:8.5px; }
+.ib.b { background:var(--bbg); border-left:3px solid var(--bm); }
+.ib.g { background:var(--gbg); border-left:3px solid var(--gn); }
+.ib.o { background:var(--obg); border-left:3px solid var(--or); }
+.ib.r { background:var(--rbg); border-left:3px solid var(--rd); }
+
+/* Layout */
+.cols { display:flex; gap:10px; }
+.col { flex:1; }
+.col2 { flex:2; }
+ul { padding-left:14px; margin:3px 0; }
+li { margin-bottom:2px; font-size:8.5px; }
+li strong { color:var(--bd); }
+code { font-family:Consolas,monospace; font-size:8px; background:var(--g2); padding:1px 3px; border-radius:2px; }
+
+/* SVG helpers */
+svg text { font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- ARROW DEFS (shared) -->
+<svg width="0" height="0">
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L9,5 L0,9" fill="none" stroke="#2E75B6" stroke-width="1.5"/></marker>
+  <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L9,5 L0,9" fill="none" stroke="#00B050" stroke-width="1.5"/></marker>
+  <marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L9,5 L0,9" fill="none" stroke="#ED7D31" stroke-width="1.5"/></marker>
+  <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L9,5 L0,9" fill="none" stroke="#C00000" stroke-width="1.5"/></marker>
+  <marker id="aw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1 L9,5 L0,9" fill="none" stroke="#6C757D" stroke-width="1.5"/></marker>
+</defs>
+</svg>
+
+<!-- ═══ PAGE 1: COVER ═══════════════════════════════════════════════════ -->
+<div class="pg cover">
+  <div style="font-size:12px; letter-spacing:4px; opacity:.5; margin-bottom:12px;">BMO FINANCIAL GROUP</div>
+  <h1>MECH Avatar</h1>
+  <div class="sub">Complete System Architecture & Technical Design</div>
+  <div style="width:50px; height:2px; background:rgba(255,255,255,.4); margin:0 auto 15px;"></div>
+  <div style="font-size:12px; opacity:.75; max-width:500px;">Enterprise RAG Platform for Mainframe Documentation Intelligence<br>Document Ingestion · Natural Language Q&A · Dump Analysis</div>
+  <div class="pills" style="margin-top:25px;">
+    <span class="pill">10 AWS Lambdas</span>
+    <span class="pill">Step Functions</span>
+    <span class="pill">OpenSearch Serverless</span>
+    <span class="pill">Amazon Bedrock</span>
+    <span class="pill">15-Stage RAG Pipeline</span>
+  </div>
+  <div class="meta">
+    DEV Account: 966245098051 · Region: us-east-1 · API Gateway: xgak1o997f (Private REST)<br>
+    Frontend: pnbb-dev.opexec.api.devhcloud.bmogc.net/dev-Mechavatar/<br><br>
+    Version 3.0 · March 2026 · <span style="color:#ff6b6b;">CONFIDENTIAL — BMO Internal Use Only</span>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2: TOC + EXECUTIVE SUMMARY ═════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <div class="cols">
+    <div class="col">
+      <h2>Table of Contents</h2>
+      <table class="sm-tbl">
+        <tr><th>#</th><th>Section</th><th>Page</th></tr>
+        <tr><td>1</td><td>Executive Summary & Key Capabilities</td><td>2</td></tr>
+        <tr><td>2</td><td>High-Level Architecture Diagram</td><td>3</td></tr>
+        <tr><td>3</td><td>AWS Components — Why Each Service</td><td>4</td></tr>
+        <tr><td>4</td><td>All 10 Lambda Functions — Detailed</td><td>5-6</td></tr>
+        <tr><td>5</td><td>Ingestion Pipeline — Step Function Flow</td><td>7</td></tr>
+        <tr><td>6</td><td>Document Extraction — All Formats</td><td>8</td></tr>
+        <tr><td>7</td><td>Embedding & Indexing — How Documents Are Stored</td><td>9</td></tr>
+        <tr><td>8</td><td>15-Stage RAG Pipeline — Per Question Flow</td><td>10</td></tr>
+        <tr><td>9</td><td>Hybrid Search Strategy — How Answers Are Found</td><td>11</td></tr>
+        <tr><td>10</td><td>Reranking, Grounding & Confidence</td><td>12</td></tr>
+        <tr><td>11</td><td>Frontend Integration & API Endpoints</td><td>13</td></tr>
+        <tr><td>12</td><td>Authentication & Security</td><td>13</td></tr>
+        <tr><td>13</td><td>Dump Analysis Feature (NEW)</td><td>14</td></tr>
+        <tr><td>14</td><td>Token Budget & API Call Count</td><td>14</td></tr>
+        <tr><td>15</td><td>Deployment, Monitoring & Operations</td><td>15</td></tr>
+      </table>
+    </div>
+    <div class="col2">
+      <h2>1. Executive Summary</h2>
+      <p><strong>What is MechAvatar?</strong> A Retrieval-Augmented Generation (RAG) platform that transforms 25,000+ mainframe documents — COBOL source, JCL procedures, BDD table definitions, functional specs, dump files — into an intelligent knowledge base that developers, QA testers, and support engineers can query in natural language.</p>
+
+      <p><strong>Why RAG instead of fine-tuning?</strong> MECH documentation changes with every release (new code patches, operational updates, table modifications). RAG retrieves from a live index that updates in minutes. Fine-tuning requires days of retraining with no guarantee the model learns identifiers like <code>BDDDABI</code> or <code>TWASPDA</code>. RAG also provides exact source attribution — every answer cites the document, section, and page it came from.</p>
+
+      <h3>Key Capabilities</h3>
+      <table>
+        <tr><th>Capability</th><th>What It Does</th><th>Why It Matters</th></tr>
+        <tr><td><strong>25K+ Document Ingestion</strong></td><td>Automated pipeline: S3 upload → extract → chunk → embed → index. Handles DOCX, PDF, XLSX, PPTX, TXT, HTML, images, legacy .doc, mainframe dumps.</td><td>Previously required hours of manual document search. Now auto-indexed and queryable within minutes of upload.</td></tr>
+        <tr><td><strong>15-Stage RAG Pipeline</strong></td><td>Intent classification → hybrid search (KNN+BM25) → multi-stage reranking → Sonnet answer generation → grounding verification → confidence scoring.</td><td>Each stage improves answer quality. Cross-encoder reranking alone improved answer precision by ~35% in testing.</td></tr>
+        <tr><td><strong>Hybrid Search</strong></td><td>70% semantic (cosine similarity on 1024-dim vectors) + 30% keyword (BM25 on doc_code, field_names, entities). Source priority boosting (wiki 2×, docs 1.5×).</td><td>Semantic search finds conceptual matches; keyword search catches exact MECH identifiers (transaction codes, table names, ABEND codes).</td></tr>
+        <tr><td><strong>Dump Analysis (NEW)</strong></td><td>Detects mainframe dump content regardless of file format. Extracts ABEND header, PSW, registers, module trace. 99.8% size reduction (1.3M → 3K chars).</td><td>Unique to MechAvatar — not available in any generic RAG platform. Directly addresses the most time-consuming mainframe debugging task.</td></tr>
+        <tr><td><strong>Source Attribution</strong></td><td>Every answer cites exact document name, section title, and page number. Grounding verification checks all claims against retrieved context.</td><td>Builds trust with users. Auditable — stakeholders can verify any answer by checking the cited source.</td></tr>
+        <tr><td><strong>Priority-Tiered Retrieval</strong></td><td>Wiki and training docs boosted 2× over tools documentation. MECH code and specs boosted 1.5×. Custom boost for dump analysis queries (2.5×).</td><td>Ensures authoritative sources surface first. The MECH Wiki is the single most complete reference — it should always outrank a third-party tools guide.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 2</span></div>
+</div>
+
+<!-- ═══ PAGE 3: HIGH-LEVEL ARCHITECTURE DIAGRAM ═════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>2. High-Level System Architecture</h2>
+  <p>Two independent pipelines connected by a shared OpenSearch Serverless vector index. The ingestion pipeline (Pipeline A) transforms documents into searchable chunks. The retrieval pipeline (Pipeline B) answers questions using those chunks.</p>
+
+  <div class="dia">
+    <svg width="100%" height="420" viewBox="0 0 980 420">
+      <!-- Pipeline A Background -->
+      <rect x="0" y="0" width="980" height="188" rx="6" fill="#E8F4FD" stroke="#2E75B6" stroke-width="1" opacity=".7"/>
+      <text x="12" y="16" font-size="10" font-weight="700" fill="#003366">PIPELINE A — Document Ingestion (Write Path)</text>
+      <text x="12" y="28" font-size="7.5" fill="#6C757D">S3 upload triggers automated extraction → chunking → embedding → indexing. Orchestrated by AWS Step Functions with retry and error handling.</text>
+
+      <!-- S3 -->
+      <rect x="15" y="42" width="95" height="55" rx="5" fill="#4472C4"/>
+      <text x="62" y="60" text-anchor="middle" font-size="9" font-weight="700" fill="white">S3 Bucket</text>
+      <text x="62" y="72" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">inbound/mechavatar/</text>
+      <text x="62" y="83" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.6)">25K files · 3.5 GB</text>
+      <line x1="114" y1="68" x2="134" y2="68" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L01 -->
+      <rect x="140" y="42" width="95" height="55" rx="5" fill="#2E75B6"/>
+      <text x="187" y="57" text-anchor="middle" font-size="8" font-weight="700" fill="white">LAMBDA 01</text>
+      <text x="187" y="68" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.85)">File Router</text>
+      <text x="187" y="79" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Validate · Dedup</text>
+      <text x="187" y="89" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Start Step Function</text>
+      <line x1="239" y1="68" x2="259" y2="68" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- Step Function box -->
+      <rect x="265" y="36" width="700" height="145" rx="6" fill="white" stroke="#2E75B6" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="280" y="50" font-size="8.5" font-weight="700" fill="#2E75B6">AWS Step Functions — Per-Document Orchestration (8 states · 3× retries · error recovery)</text>
+
+      <!-- L10 -->
+      <rect x="280" y="58" width="80" height="42" rx="4" fill="#6C757D"/>
+      <text x="320" y="73" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">L10 .doc</text>
+      <text x="320" y="84" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">antiword/OLE</text>
+      <text x="320" y="93" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.5)">(legacy only)</text>
+
+      <!-- L02 -->
+      <rect x="375" y="58" width="115" height="50" rx="5" fill="#2E75B6"/>
+      <text x="432" y="72" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">LAMBDA 02</text>
+      <text x="432" y="83" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.85)">Extract + Chunk</text>
+      <text x="432" y="93" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">12 formats · Dump detect</text>
+      <text x="432" y="103" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">HybridChunker 1500 tok</text>
+      <line x1="494" y1="82" x2="514" y2="82" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L03 -->
+      <rect x="520" y="58" width="115" height="50" rx="5" fill="#00B050"/>
+      <text x="577" y="72" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">LAMBDA 03</text>
+      <text x="577" y="83" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.85)">Embed (Titan V2)</text>
+      <text x="577" y="93" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">1024-dim · Batch 975</text>
+      <text x="577" y="103" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Haiku metadata enrich</text>
+      <line x1="639" y1="82" x2="659" y2="82" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L04 -->
+      <rect x="665" y="58" width="115" height="50" rx="5" fill="#2E75B6"/>
+      <text x="722" y="72" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">LAMBDA 04</text>
+      <text x="722" y="83" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.85)">Index Writer</text>
+      <text x="722" y="93" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">OpenSearch Bulk 100</text>
+      <text x="722" y="103" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">62 fields · doc_code</text>
+      <line x1="784" y1="82" x2="804" y2="82" stroke="#6C757D" stroke-width="1.5" marker-end="url(#aw)"/>
+
+      <!-- L05 -->
+      <rect x="810" y="58" width="100" height="50" rx="5" fill="#6C757D"/>
+      <text x="860" y="72" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">LAMBDA 05</text>
+      <text x="860" y="83" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.85)">Metadata</text>
+      <text x="860" y="93" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">DynamoDB update</text>
+      <text x="860" y="103" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">is_searchable=true</text>
+
+      <!-- S3 intermediate -->
+      <rect x="375" y="120" width="115" height="24" rx="3" fill="#ED7D31" opacity=".9"/>
+      <text x="432" y="136" text-anchor="middle" font-size="7" font-weight="600" fill="white">S3: chunks.jsonl</text>
+      <rect x="520" y="120" width="115" height="24" rx="3" fill="#ED7D31" opacity=".9"/>
+      <text x="577" y="136" text-anchor="middle" font-size="7" font-weight="600" fill="white">S3: embeddings.jsonl</text>
+      <rect x="665" y="120" width="115" height="24" rx="3" fill="#ED7D31" opacity=".9"/>
+      <text x="722" y="136" text-anchor="middle" font-size="7" font-weight="600" fill="white">DynamoDB status</text>
+
+      <!-- Dashed lines to S3 -->
+      <line x1="432" y1="108" x2="432" y2="118" stroke="#ED7D31" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="577" y1="108" x2="577" y2="118" stroke="#ED7D31" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="722" y1="108" x2="722" y2="118" stroke="#ED7D31" stroke-width="1" stroke-dasharray="3,2"/>
+
+      <!-- DynamoDB Tables -->
+      <rect x="810" y="120" width="145" height="50" rx="4" fill="#ED7D31"/>
+      <text x="882" y="134" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">DynamoDB (6 Tables)</text>
+      <text x="882" y="145" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.8)">documents-metadata</text>
+      <text x="882" y="155" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.8)">processing-pipeline</text>
+      <text x="882" y="165" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">users · memory · cache · rate</text>
+
+      <!-- ═══ OPENSEARCH CENTER ═══ -->
+      <rect x="280" y="192" width="420" height="40" rx="8" fill="#00B050" stroke="#008040" stroke-width="2"/>
+      <text x="490" y="210" text-anchor="middle" font-size="12" font-weight="700" fill="white">OpenSearch Serverless (AOSS)</text>
+      <text x="490" y="224" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.8)">HNSW 1024-dim · KNN + BM25 · 62 fields/chunk · 3 indexes (documents, memory, pageindex)</text>
+
+      <!-- Arrow L04 to OS -->
+      <line x1="722" y1="112" x2="700" y2="192" stroke="#00B050" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+      <!-- ═══ Pipeline B Background ═══ -->
+      <rect x="0" y="240" width="980" height="175" rx="6" fill="#FFF3E8" stroke="#ED7D31" stroke-width="1" opacity=".7"/>
+      <text x="12" y="255" font-size="10" font-weight="700" fill="#003366">PIPELINE B — Question Answering (Read Path)</text>
+      <text x="12" y="267" font-size="7.5" fill="#6C757D">User asks question → JWT auth → 15-stage RAG pipeline → grounded answer with source citations. 2-8 seconds per question.</text>
+
+      <!-- Frontend -->
+      <rect x="15" y="278" width="85" height="52" rx="5" fill="#4472C4"/>
+      <text x="57" y="295" text-anchor="middle" font-size="8" font-weight="700" fill="white">Frontend</text>
+      <text x="57" y="306" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Angular SPA</text>
+      <text x="57" y="317" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Fargate + Nginx</text>
+      <line x1="104" y1="303" x2="118" y2="303" stroke="#ED7D31" stroke-width="1.5" marker-end="url(#ao)"/>
+
+      <!-- BMO Proxy -->
+      <rect x="124" y="278" width="75" height="52" rx="5" fill="#ED7D31"/>
+      <text x="161" y="295" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">BMO Proxy</text>
+      <text x="161" y="306" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.8)">pnbb-dev</text>
+      <text x="161" y="317" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">TLS · Headers</text>
+      <line x1="203" y1="303" x2="217" y2="303" stroke="#ED7D31" stroke-width="1.5" marker-end="url(#ao)"/>
+
+      <!-- Nginx -->
+      <rect x="223" y="278" width="75" height="52" rx="5" fill="#ED7D31"/>
+      <text x="260" y="295" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">Nginx</text>
+      <text x="260" y="306" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.8)">/api/* → /dev/*</text>
+      <text x="260" y="317" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Rate limit · CORS</text>
+      <line x1="302" y1="303" x2="316" y2="303" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- API GW -->
+      <rect x="322" y="278" width="85" height="52" rx="5" fill="#2E75B6"/>
+      <text x="364" y="293" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">API Gateway</text>
+      <text x="364" y="304" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.8)">Private REST</text>
+      <text x="364" y="315" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">xgak1o997f</text>
+      <text x="364" y="325" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Lambda Proxy</text>
+      <line x1="411" y1="303" x2="425" y2="303" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L08 -->
+      <rect x="431" y="278" width="95" height="52" rx="5" fill="#2E75B6"/>
+      <text x="478" y="293" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">LAMBDA 08</text>
+      <text x="478" y="304" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">API Handler</text>
+      <text x="478" y="315" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">JWT Auth · Route</text>
+      <text x="478" y="325" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">CORS · Rate Limit</text>
+      <line x1="530" y1="303" x2="544" y2="303" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L06 -->
+      <rect x="550" y="272" width="155" height="64" rx="6" fill="#003366" stroke="#2E75B6" stroke-width="2"/>
+      <text x="627" y="288" text-anchor="middle" font-size="9" font-weight="700" fill="white">LAMBDA 06</text>
+      <text x="627" y="300" text-anchor="middle" font-size="8.5" fill="#4A90D9">15-Stage RAG Pipeline</text>
+      <text x="627" y="312" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Intent → Search → Rerank</text>
+      <text x="627" y="322" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">→ Generate → Verify</text>
+      <text x="627" y="332" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.5)">7 Bedrock calls · ~28K tokens</text>
+
+      <line x1="627" y1="270" x2="490" y2="235" stroke="#00B050" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+      <line x1="709" y1="303" x2="726" y2="303" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+
+      <!-- Bedrock -->
+      <rect x="732" y="272" width="135" height="64" rx="6" fill="#00B050"/>
+      <text x="799" y="290" text-anchor="middle" font-size="9" font-weight="700" fill="white">Amazon Bedrock</text>
+      <text x="799" y="302" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">Claude Sonnet (Answer)</text>
+      <text x="799" y="313" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">Claude Haiku (Aux × 5)</text>
+      <text x="799" y="324" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.8)">Titan V2 (Embed)</text>
+
+      <!-- Memory Lambdas -->
+      <rect x="550" y="348" width="72" height="35" rx="4" fill="#6C757D"/>
+      <text x="586" y="363" text-anchor="middle" font-size="7" font-weight="600" fill="white">L07 Memory</text>
+      <text x="586" y="374" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Session ctx</text>
+      <rect x="633" y="348" width="72" height="35" rx="4" fill="#6C757D"/>
+      <text x="669" y="363" text-anchor="middle" font-size="7" font-weight="600" fill="white">L09 Writer</text>
+      <text x="669" y="374" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Async DDB</text>
+
+      <line x1="600" y1="338" x2="586" y2="346" stroke="#6C757D" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="650" y1="338" x2="669" y2="346" stroke="#6C757D" stroke-width="1" stroke-dasharray="3,2"/>
+
+      <!-- Legend -->
+      <rect x="10" y="395" width="960" height="20" rx="3" fill="white" stroke="#DEE2E6" stroke-width=".5"/>
+      <rect x="20" y="400" width="10" height="10" rx="2" fill="#2E75B6"/><text x="35" y="409" font-size="7" fill="#6C757D">Lambda</text>
+      <rect x="80" y="400" width="10" height="10" rx="2" fill="#00B050"/><text x="95" y="409" font-size="7" fill="#6C757D">Bedrock / OpenSearch</text>
+      <rect x="195" y="400" width="10" height="10" rx="2" fill="#ED7D31"/><text x="210" y="409" font-size="7" fill="#6C757D">Storage / Proxy</text>
+      <rect x="290" y="400" width="10" height="10" rx="2" fill="#4472C4"/><text x="305" y="409" font-size="7" fill="#6C757D">Frontend / S3</text>
+      <rect x="380" y="400" width="10" height="10" rx="2" fill="#6C757D"/><text x="395" y="409" font-size="7" fill="#6C757D">Support / Utility</text>
+      <rect x="490" y="400" width="10" height="10" rx="2" fill="#003366"/><text x="505" y="409" font-size="7" fill="#6C757D">Core RAG Engine</text>
+    </svg>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 3</span></div>
+</div>
+
+<!-- ═══ PAGE 4: AWS COMPONENTS ═══════════════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>3. AWS Components — Why Each Service Was Chosen</h2>
+  <p>Every component is serverless — no EC2 instances, no clusters to manage, no database administration. Pay only for what you use.</p>
+
+  <table>
+    <tr><th style="width:12%">Service</th><th style="width:18%">Resource</th><th style="width:30%">What It Does</th><th style="width:25%">Why This Service</th><th style="width:15%">Alternative Considered</th></tr>
+    <tr>
+      <td><strong>Lambda</strong></td><td>10 functions (L01-L10)</td>
+      <td>All compute — file routing, text extraction, embedding generation, OpenSearch indexing, query processing, API handling, memory management</td>
+      <td>Serverless: zero idle cost, independent scaling per function, 15-min max timeout fits all pipeline stages. Each Lambda has one job — easy to debug, deploy, and test independently.</td>
+      <td>ECS Fargate (higher cost for bursty workloads), EC2 (ops overhead)</td>
+    </tr>
+    <tr>
+      <td><strong>Step Functions</strong></td><td>Standard workflow per document</td>
+      <td>Orchestrates L02→L03→L04→L05 pipeline with state tracking, retry logic, and error handling. Visual debugging in AWS Console shows exact failure point.</td>
+      <td>Built-in retry with exponential backoff. State machine ensures no document is lost even if one Lambda times out. Visual execution history makes debugging trivial — you can see every input/output at every step.</td>
+      <td>SQS+Lambda (no visual debugging, manual retry), EventBridge Pipes (less control)</td>
+    </tr>
+    <tr>
+      <td><strong>OpenSearch Serverless</strong></td><td>AOSS collection (3 indexes)</td>
+      <td>Stores 200K+ document chunks with 1024-dim vectors. Supports both KNN (semantic) and BM25 (keyword) search in a single query. Auto-scales.</td>
+      <td>Only managed service that does hybrid KNN+BM25 in one query. No cluster sizing decisions — AOSS auto-provisions OCUs based on workload. Supports function_score for source priority boosting.</td>
+      <td>Pinecone (no BM25), pgvector (no managed scaling), Kendra (not vector-native)</td>
+    </tr>
+    <tr>
+      <td><strong>Bedrock</strong></td><td>3 models via Application Inference Profiles</td>
+      <td><strong>Sonnet</strong>: answer generation (max 6K tokens). <strong>Haiku</strong>: intent classification, cross-encoder scoring, context compression, metadata enrichment. <strong>Titan V2</strong>: 1024-dim embeddings for documents and queries.</td>
+      <td>Inference Profiles provide stable ARNs that don't change when Bedrock updates model versions. Sonnet is best-in-class for complex multi-document synthesis. Haiku is 10× cheaper for fast auxiliary tasks.</td>
+      <td>OpenAI (data residency concerns), self-hosted (GPU cost, ops), SageMaker (more ops)</td>
+    </tr>
+    <tr>
+      <td><strong>S3</strong></td><td>Inbound bucket with prefixed folders</td>
+      <td>Receives document uploads, stores intermediate artifacts (chunks.jsonl, embeddings.jsonl), processed files, and Q&A output. S3 events trigger Lambda 01.</td>
+      <td>Durable, low-cost object storage. S3 event notifications enable fully event-driven ingestion — no polling. Folder structure drives source_priority ranking (wiki=2×, docs=1.5×).</td>
+      <td>EFS (more expensive for cold storage)</td>
+    </tr>
+    <tr>
+      <td><strong>DynamoDB</strong></td><td>6 tables</td>
+      <td>Pipeline tracking, document metadata, user auth (JWT), conversation memory, query result cache (24h TTL), per-user rate limiting.</td>
+      <td>Single-digit millisecond latency. Serverless on-demand pricing. Perfect for key-value lookups (cache check, JWT verify, document status). No connection pool management.</td>
+      <td>RDS (connection pooling with Lambda is painful), ElastiCache (more ops)</td>
+    </tr>
+    <tr>
+      <td><strong>API Gateway</strong></td><td>Private REST API (xgak1o997f)</td>
+      <td>Entry point for all frontend API calls. Lambda proxy integration routes /auth/*, /chat/*, /documents/* to Lambda 08. Private endpoint — only accessible from BMO VPC.</td>
+      <td>Private endpoint ensures API is never exposed to public internet. VPC endpoint resolves to private IP, so all traffic stays within AWS backbone. Lambda proxy integration = zero API Gateway configuration per route.</td>
+      <td>ALB (no private DNS resolution), direct Lambda URL (no WAF integration)</td>
+    </tr>
+    <tr>
+      <td><strong>Fargate (ECS)</strong></td><td>Nginx + Angular container</td>
+      <td>Hosts the frontend SPA. Nginx reverse-proxies /api/* calls to API Gateway via VPC endpoint. Handles CORS, rate limiting, CSP headers, TLS.</td>
+      <td>Containerized Nginx gives full control over proxy rules, headers, and rate limiting. Fargate = no EC2 patching. Auto-scaling based on CPU/memory.</td>
+      <td>S3+CloudFront (can't proxy to private API GW), EC2 (patching burden)</td>
+    </tr>
+  </table>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 4</span></div>
+</div>
+
+<!-- ═══ PAGE 5-6: ALL 10 LAMBDAS DETAILED ═══════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>4. All 10 Lambda Functions — Input, Processing, Output</h2>
+  <p>Each Lambda has a single responsibility. This table shows exactly what each function receives, what it does, and what it produces.</p>
+
+  <table>
+    <tr><th style="width:3%">#</th><th style="width:7%">Name</th><th style="width:7%">Config</th><th style="width:15%">Input (receives)</th><th style="width:30%">Processing (what it does)</th><th style="width:20%">Output (produces)</th><th style="width:18%">Key Design Decisions</th></tr>
+    <tr>
+      <td><strong>01</strong></td><td>File Router</td><td>512MB<br>300s</td>
+      <td>S3 ObjectCreated event (up to 10 records per invocation)</td>
+      <td>1. Validate file type, size, extension<br>2. Generate doc_id = <code>doc-{MD5(key)[:12]}</code><br>3. Dedup check (DynamoDB + ETag/SHA256 hash)<br>4. Sort by source priority (wiki first)<br>5. Create DynamoDB records<br>6. Start Step Function execution</td>
+      <td>Step Function execution started. DynamoDB records: documents-metadata (status=ingestion_started), processing-pipeline</td>
+      <td>Retry on ExecutionLimitExceeded: 4 retries, 2s/4s/8s/16s backoff. Priority sort ensures wiki/training docs process first during bulk ingestion.</td>
+    </tr>
+    <tr>
+      <td><strong>02</strong></td><td>Document Extractor</td><td>3008MB<br>900s</td>
+      <td>From SF: file_name, file_type, s3_key, s3_bucket, document_id</td>
+      <td>1. Download file from S3 to /tmp<br>2. Detect dump content (9 signature patterns)<br>3. Extract text per format (12 extractors)<br>4. If dump → structured extraction (ABEND, PSW, registers, module trace)<br>5. HybridChunker: 1500-token target, 200-char overlap<br>6. Content control (w:sdt) extraction for DOCX<br>7. XML fallback for empty DOCX</td>
+      <td>S3: chunks/{doc_id}/chunks.jsonl<br>Each chunk: text, section_title, page_number, content_type, entities, topics<br>Returns: statusCode, chunk_count, s3_key</td>
+      <td>O(1) paragraph lookup (dict) instead of O(n²) loop. Dump detection: ≥3 of 9 signature matches. Content controls (w:sdt) handled for structured DOCX files. XML fallback prevents false "empty" skips.</td>
+    </tr>
+    <tr>
+      <td><strong>03</strong></td><td>Embeddings Generator</td><td>2048MB<br>600s</td>
+      <td>From SF: chunks S3 key, document_id, s3_key (forwarded)</td>
+      <td>1. Load chunks.jsonl from S3 (streaming)<br>2. For each chunk: truncate to 30K chars<br>3. Call Titan V2 (batch 25, 0.1s pause)<br>4. Haiku metadata enrichment per chunk<br>5. Exclude zero-vector chunks<br>6. If >975 chunks: self-invoke for remaining batches</td>
+      <td>S3: embeddings/{doc_id}/embeddings.jsonl<br>Each entry: chunk text + 1024-dim vector + enriched metadata<br>Returns: statusCode 200 (or 202 for batch handoff), embedding_batch_keys[]</td>
+      <td>Self-invocation pattern for large docs (>975 chunks) keeps each invocation within 600s timeout. Returns 202 (not RuntimeError) on batch handoff to prevent SF pipeline crash. Token bucket rate limiter for Bedrock throttling.</td>
+    </tr>
+    <tr>
+      <td><strong>04</strong></td><td>Index Writer</td><td>2048MB<br>600s</td>
+      <td>From SF: embedding_batch_keys[], document_id, s3_key (forwarded)</td>
+      <td>1. Load ALL embedding batch files from S3<br>2. Extract doc_code from filename (regex: A-xx-NAME)<br>3. Extract column_names from table chunks<br>4. Classify chunk_type (text/table/code)<br>5. Compute source_priority from s3_key path<br>6. Delete existing chunks for document_id<br>7. Bulk index to OpenSearch (100/batch)</td>
+      <td>OpenSearch: 62 fields per chunk indexed<br>DynamoDB: pipeline status updated<br>Returns: statusCode, chunks_indexed count</td>
+      <td>AWS4Auth rebuilt from get_frozen_credentials() every invocation — prevents 403 on STS token expiry. Delete-before-reindex prevents duplicates (AOSS auto-generates _id). s3_key must be forwarded through SF or source_priority defaults to 100.</td>
+    </tr>
+    <tr>
+      <td><strong>05</strong></td><td>Metadata Updater</td><td>1024MB<br>120s</td>
+      <td>From SF: document_id, all pipeline timing data</td>
+      <td>1. Update DynamoDB: status=indexed, is_searchable=true<br>2. Extract and store MECH identifiers<br>3. Combine timing metrics from all stages<br>4. Handle reprocess_failed action</td>
+      <td>DynamoDB: final document record with status, chunk_count, total_time, extraction_metrics</td>
+      <td>Marks document as searchable only after indexing completes. Reprocess action can re-start failed documents. Lightweight — only DynamoDB operations.</td>
+    </tr>
+  </table>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 5</span></div>
+</div>
+
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>4. All 10 Lambda Functions — continued</h2>
+
+  <table>
+    <tr><th style="width:3%">#</th><th style="width:7%">Name</th><th style="width:7%">Config</th><th style="width:15%">Input (receives)</th><th style="width:30%">Processing (what it does)</th><th style="width:20%">Output (produces)</th><th style="width:18%">Key Design Decisions</th></tr>
+    <tr>
+      <td><strong>06</strong></td><td>Query Processor</td><td>3008MB<br>120s<br>18 env vars<br>(893 bytes)</td>
+      <td>From L08: query, persona, session_id, filters</td>
+      <td><strong>15-stage RAG pipeline:</strong><br>1. Cache check (DynamoDB SHA256)<br>2a. Intent classification (Haiku) — 11 types<br>2b. Query embedding (Titan V2 1024d)<br>2c. Requirements extraction (Haiku)<br>3. Entity extraction (regex, ~5ms)<br>4. HyDE / query expansion (Haiku)<br>5. Hybrid search (KNN 70% + BM25 30%)<br>6. Document diversity<br>7a. Entity-aware reranking<br>7b. Cross-encoder (Haiku)<br>8. Context compression (Haiku)<br>9. Context reordering (lost-in-middle)<br>10. Context building<br>11. Answer generation (Sonnet, max 6K tokens)<br>12. Grounding verification<br>13-14. Confidence calibration<br>15. Cache write + async memory (L09)</td>
+      <td>JSON response:<br>- answer (grounded text)<br>- sources[] (file_name, section, page)<br>- confidence (0.0-1.0)<br>- grounding_status<br>- intent<br>- search_techniques<br>- input_tokens, output_tokens<br>- processing_ms</td>
+      <td>Feature flags hardcoded in config.py (not env vars) to stay under 4KB Lambda limit. Stages 2a/2b/2c run in parallel via ThreadPoolExecutor. Every stage degrades gracefully — failure falls back to defaults, never crashes the pipeline. HyDE skipped for simple queries. DUMP_ANALYSIS intent gets special 5-step prompt.</td>
+    </tr>
+    <tr>
+      <td><strong>07</strong></td><td>Memory Search</td><td>512MB<br>30s</td>
+      <td>session_id from L06</td>
+      <td>1. Query OpenSearch memory index by session_id<br>2. Retrieve prior Q&A pairs from current session<br>3. Return context for follow-up question handling</td>
+      <td>Prior conversation context (up to 20 items) for session continuity</td>
+      <td>Lightweight — only OpenSearch query. Memory index is separate from documents index. Session-scoped: different users don't share memory.</td>
+    </tr>
+    <tr>
+      <td><strong>08</strong></td><td>Unified API Handler</td><td>1024MB<br>60s</td>
+      <td>API Gateway event (any /auth/*, /chat/*, /documents/* endpoint)</td>
+      <td>1. Parse HTTP method + path<br>2. JWT verification (HS256 signature + expiry)<br>3. CORS header injection<br>4. Rate limit check (per-user, 10 req/60s)<br>5. Route to handler: login, register, chat/query, documents/upload, etc.<br>6. For /chat/query: invoke Lambda 06 synchronously<br>7. For /documents/upload: generate S3 presigned URL</td>
+      <td>HTTP response with CORS headers:<br>- /auth/login: JWT token + user profile<br>- /chat/query: L06 RAG response<br>- /documents/upload: presigned S3 URL<br>- /documents/list: document list from DDB<br>- /documents/status: pipeline status</td>
+      <td>Single Lambda handles ALL API routes — simplifies API Gateway config (one Lambda proxy integration). JWT uses HMAC-SHA256 (no Cognito dependency). ALLOW_ANONYMOUS=true auto-creates users for dev testing. Login expects {email, password} not {username, password}.</td>
+    </tr>
+    <tr>
+      <td><strong>09</strong></td><td>Memory Writer</td><td>512MB<br>30s</td>
+      <td>From L06 (async): query, answer, session_id, intent, confidence</td>
+      <td>1. Store Q&A pair in DynamoDB memory table<br>2. Index Q&A into OpenSearch memory index (for semantic memory search)</td>
+      <td>DynamoDB: session memory record<br>OpenSearch: memory index entry</td>
+      <td>Invoked asynchronously from L06 Stage 15 — does not add latency to user response. Enables follow-up questions ("What did you just say about X?").</td>
+    </tr>
+    <tr>
+      <td><strong>10</strong></td><td>Doc Processor</td><td>1024MB<br>300s</td>
+      <td>From SF: file_name, s3_key, s3_bucket (only for .doc files)</td>
+      <td>1. Download .doc file from S3<br>2. Try antiword extraction<br>3. Fallback: OLE parsing (olefile)<br>4. Fallback: binary text extraction<br>5. Optional: Haiku Vision OCR for embedded images<br>6. Write extracted text to S3</td>
+      <td>S3: extracted/{doc_id}/extracted.txt<br>Returns: extracted_s3_key, extraction_success, pages, tables, images count</td>
+      <td>Three-tier extraction (antiword → OLE → binary) ensures every .doc file produces text. Output feeds back into L02 for chunking. Added pages, tables, images to ExtractionResult for schema alignment.</td>
+    </tr>
+  </table>
+
+  <div class="ib b">
+    <strong>Lambda 06 Env Var Budget:</strong> Lambda has a hard 4KB limit for all environment variables (including ~1.5KB injected by AWS). L06 originally had 70 env vars (2,662 bytes) — dangerously close to the limit. Refactored to 18 env vars (893 bytes) by hardcoding 25 feature flags and 6 model vars in Python. Margin: 1,703 bytes under limit.
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 6</span></div>
+</div>
+
+<!-- ═══ PAGE 7: STEP FUNCTION FLOW ══════════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>5. Ingestion Pipeline — Step Function State Machine</h2>
+  <p>Each document uploaded to S3 triggers one Step Function execution. The state machine orchestrates extraction, embedding, and indexing with built-in retry, error handling, and a dedicated path for skipped documents (empty DOCX, image-only files).</p>
+
+  <div class="dia">
+    <div class="dia-t">STEP FUNCTION FLOW — Per Document</div>
+    <svg width="100%" height="280" viewBox="0 0 960 280">
+      <!-- Row 1: Input validation + metadata -->
+      <circle cx="20" cy="35" r="12" fill="#00B050" stroke="#008040" stroke-width="1.5"/>
+      <text x="20" y="39" text-anchor="middle" font-size="8" font-weight="700" fill="white">S</text>
+      <line x1="35" y1="35" x2="55" y2="35" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <rect x="60" y="15" width="88" height="40" rx="4" fill="#ED7D31"/>
+      <text x="104" y="32" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">ValidateInput</text>
+      <text x="104" y="43" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">Choice: 4 fields</text>
+      <line x1="152" y1="35" x2="167" y2="35" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <rect x="172" y="15" width="100" height="40" rx="4" fill="#6C757D"/>
+      <text x="222" y="30" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">InitializeMetadata</text>
+      <text x="222" y="43" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">DynamoDB PutItem</text>
+      <line x1="276" y1="35" x2="291" y2="35" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <rect x="296" y="15" width="95" height="40" rx="4" fill="#ED7D31"/>
+      <text x="343" y="30" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">CheckLegacy?</text>
+      <text x="343" y="43" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">file_type check</text>
+
+      <!-- Legacy branch down -->
+      <line x1="343" y1="58" x2="343" y2="72" stroke="#6C757D" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="305" y="72" width="75" height="28" rx="3" fill="#6C757D" opacity=".8"/>
+      <text x="342" y="90" text-anchor="middle" font-size="7" font-weight="600" fill="white">L10 .doc</text>
+
+      <!-- Normal path right -->
+      <line x1="395" y1="35" x2="410" y2="35" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L02 EXTRACT -->
+      <rect x="415" y="10" width="120" height="50" rx="5" fill="#2E75B6" stroke="#003366" stroke-width="1.5"/>
+      <text x="475" y="27" text-anchor="middle" font-size="8" font-weight="700" fill="white">ExtractDocument</text>
+      <text x="475" y="39" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">Lambda 02</text>
+      <text x="475" y="50" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">Text + Chunk + Dump</text>
+      <line x1="539" y1="35" x2="554" y2="35" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- CheckExtractionSuccess -->
+      <rect x="559" y="15" width="85" height="40" rx="4" fill="#ED7D31"/>
+      <text x="601" y="30" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">Check OK?</text>
+      <text x="601" y="43" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">statusCode=200</text>
+
+      <!-- Success path right -->
+      <line x1="648" y1="35" x2="663" y2="35" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+
+      <!-- CheckIfSkipped -->
+      <rect x="668" y="15" width="80" height="40" rx="4" fill="#ED7D31"/>
+      <text x="708" y="30" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">Skipped?</text>
+      <text x="708" y="43" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">status=skipped</text>
+
+      <!-- Skipped → HandleSkip → Success -->
+      <line x1="752" y1="35" x2="767" y2="35" stroke="#C00000" stroke-width="1.5" marker-end="url(#ar)"/>
+      <rect x="772" y="15" width="85" height="40" rx="4" fill="#C00000" opacity=".85"/>
+      <text x="814" y="30" text-anchor="middle" font-size="7" font-weight="600" fill="white">HandleSkip</text>
+      <text x="814" y="43" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">DDB: skipped</text>
+      <line x1="861" y1="35" x2="876" y2="35" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+      <rect x="881" y="20" width="55" height="28" rx="14" fill="#00B050"/>
+      <text x="908" y="38" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">SKIP ✓</text>
+
+      <!-- Row 2: Normal path continues -->
+      <line x1="708" y1="58" x2="708" y2="80" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+      <text x="720" y="72" font-size="6.5" fill="#00B050">not skipped</text>
+
+      <!-- UpdateToExtracted -->
+      <rect x="662" y="85" width="92" height="30" rx="3" fill="#6C757D"/>
+      <text x="708" y="104" text-anchor="middle" font-size="7" font-weight="600" fill="white">UpdateExtracted</text>
+      <line x1="658" y1="100" x2="610" y2="100" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L03 EMBED -->
+      <rect x="475" y="80" width="130" height="45" rx="5" fill="#00B050" stroke="#008040" stroke-width="1.5"/>
+      <text x="540" y="96" text-anchor="middle" font-size="8" font-weight="700" fill="white">GenerateEmbeddings</text>
+      <text x="540" y="108" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">Lambda 03 — Titan V2</text>
+      <text x="540" y="118" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">1024-dim · Batch 975</text>
+      <line x1="471" y1="102" x2="456" y2="102" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- UpdateToEmbedded -->
+      <rect x="348" y="87" width="103" height="30" rx="3" fill="#6C757D"/>
+      <text x="399" y="106" text-anchor="middle" font-size="7" font-weight="600" fill="white">UpdateEmbedded</text>
+      <line x1="344" y1="102" x2="329" y2="102" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- L04 INDEX -->
+      <rect x="190" y="80" width="135" height="45" rx="5" fill="#2E75B6" stroke="#003366" stroke-width="1.5"/>
+      <text x="257" y="96" text-anchor="middle" font-size="8" font-weight="700" fill="white">IndexToOpenSearch</text>
+      <text x="257" y="108" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">Lambda 04 — Bulk 100</text>
+      <text x="257" y="118" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">62 fields · doc_code · source_priority</text>
+      <line x1="186" y1="102" x2="171" y2="102" stroke="#6C757D" stroke-width="1.5" marker-end="url(#aw)"/>
+
+      <!-- L05 METADATA -->
+      <rect x="60" y="82" width="107" height="40" rx="5" fill="#6C757D"/>
+      <text x="113" y="98" text-anchor="middle" font-size="8" font-weight="700" fill="white">UpdateMetadata</text>
+      <text x="113" y="110" text-anchor="middle" font-size="7.5" fill="rgba(255,255,255,.85)">Lambda 05</text>
+      <line x1="113" y1="125" x2="113" y2="140" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+
+      <!-- PipelineSuccess -->
+      <rect x="60" y="145" width="107" height="30" rx="4" fill="#00B050"/>
+      <text x="113" y="164" text-anchor="middle" font-size="8" font-weight="700" fill="white">PipelineSuccess</text>
+      <line x1="113" y1="178" x2="113" y2="190" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+
+      <circle cx="113" cy="200" r="12" fill="#00B050" stroke="#008040" stroke-width="1.5"/>
+      <text x="113" y="204" text-anchor="middle" font-size="8" font-weight="700" fill="white">✓</text>
+
+      <!-- ═══ ERROR HANDLING ═══ -->
+      <rect x="20" y="225" width="920" height="48" rx="5" fill="#FFF0F0" stroke="#C00000" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="35" y="242" font-size="9" font-weight="700" fill="#C00000">ERROR HANDLING — Catch from any Lambda state</text>
+      <rect x="35" y="250" width="105" height="18" rx="3" fill="#C00000" opacity=".85"/>
+      <text x="87" y="263" text-anchor="middle" font-size="7" font-weight="600" fill="white">HandleErrorFromCatch</text>
+      <text x="155" y="263" font-size="8" fill="#C00000">→</text>
+      <rect x="170" y="250" width="100" height="18" rx="3" fill="#C00000" opacity=".85"/>
+      <text x="220" y="263" text-anchor="middle" font-size="7" font-weight="600" fill="white">MarkPipelineFailed</text>
+      <text x="285" y="263" font-size="8" fill="#C00000">→</text>
+      <rect x="300" y="250" width="60" height="18" rx="9" fill="#C00000"/>
+      <text x="330" y="263" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">FAIL</text>
+
+      <text x="380" y="263" font-size="7.5" fill="#6C757D">Retry policy: 3× with exponential backoff (2s→4s→8s) for Lambda.ServiceException, TooManyRequests, AWSLambdaException, States.Timeout</text>
+    </svg>
+  </div>
+
+  <div class="cols">
+    <div class="col">
+      <div class="ib b">
+        <strong>Critical s3_key Forwarding:</strong> The <code>s3_key</code> field is forwarded from L02 extraction_result → through the Step Function state → L03 → L04. Lambda 04 uses it to compute <code>source_priority</code> (1-9) and <code>s3_folder</code>. Without this forwarding, every document defaults to priority=100 and the search boost system (2×/1.5×/1.2×) is completely inactive.
+      </div>
+    </div>
+    <div class="col">
+      <div class="ib g">
+        <strong>Skipped Document Path (NEW):</strong> If L02 returns <code>status: "skipped"</code> (empty body, image-only DOCX), the CheckIfSkipped state routes to HandleSkippedDocument → DocumentSkippedComplete (Succeed). Previously this crashed the SF because the embedding step received null chunk data.
+      </div>
+    </div>
+    <div class="col">
+      <div class="ib o">
+        <strong>Batch Handoff (L03):</strong> Documents with >975 chunks: L03 processes one batch and returns statusCode 202 (not RuntimeError). The SF embedding_batch_keys array ensures L04 loads ALL batch files. Previously L04 only indexed the last batch — causing silent data loss.
+      </div>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 7</span></div>
+</div>
+
+<!-- ═══ PAGE 8: DOCUMENT EXTRACTION ═════════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>6. Document Extraction — All Supported Formats</h2>
+
+  <div class="cols">
+    <div class="col2">
+      <h3>6.1 Extraction Methods by File Type</h3>
+      <table>
+        <tr><th>Format</th><th>Library / Method</th><th>Special Handling</th><th>Output</th></tr>
+        <tr><td><strong>DOCX</strong></td><td>python-docx</td><td>Content controls (w:sdt) extraction. O(1) paragraph lookup via dict. XML fallback for structured DOCX. Heading hierarchy preserved.</td><td>Markdown-formatted text with headings, tables, lists</td></tr>
+        <tr><td><strong>PDF</strong></td><td>pymupdf4llm (primary)<br>PyMuPDF → pypdf fallback</td><td>PDFs >300 pages: batch mode (150 pages/batch). OCR via Haiku Vision for image-only pages. Table detection.</td><td>Text with page numbers, tables as markdown</td></tr>
+        <tr><td><strong>XLSX</strong></td><td>openpyxl read_only streaming</td><td>ALL rows processed (no cap). Sheets >2M chars split into sections. Both openpyxl (xlsx) and xlrd (xls) supported. Image OCR for files <50MB.</td><td>Tab-separated rows with sheet names, formulas resolved</td></tr>
+        <tr><td><strong>XLS</strong></td><td>xlrd</td><td>Legacy Excel format. Same streaming approach as XLSX.</td><td>Same as XLSX</td></tr>
+        <tr><td><strong>PPTX</strong></td><td>python-pptx</td><td>Slide text, speaker notes, titles extracted. Slide number tracked.</td><td>Slide-labeled text blocks</td></tr>
+        <tr><td><strong>PPT</strong></td><td>Legacy binary extraction</td><td>Similar to .doc legacy path. Binary parsing with text cleanup.</td><td>Raw text with slide boundaries</td></tr>
+        <tr><td><strong>TXT / ASM / COBOL / JCL</strong></td><td>Direct UTF-8 read</td><td>No-extension files (BDDTA29, MOPIC5A) treated as Assembler. Encoding detection for non-UTF-8 files.</td><td>Raw text with line numbers preserved</td></tr>
+        <tr><td><strong>HTML</strong></td><td>BeautifulSoup</td><td>Tag stripping with structure preservation. Table extraction to markdown.</td><td>Clean text with heading hierarchy</td></tr>
+        <tr><td><strong>XML</strong></td><td>ElementTree parser</td><td>Namespace-aware extraction. MECH-specific XML schemas handled.</td><td>Structured text from XML elements</td></tr>
+        <tr><td><strong>Images (PNG/JPG)</strong></td><td>Claude Haiku Vision OCR</td><td>Three paths: direct OCR, embedded image OCR (from DOCX/XLSX), screenshot text extraction.</td><td>OCR text with confidence indicator</td></tr>
+        <tr><td><strong>Legacy .doc</strong></td><td>Lambda 10: antiword → OLE → binary</td><td>Three-tier fallback. Optional Haiku text cleanup. Output feeds back into L02 for chunking.</td><td>Cleaned text via S3 extracted/ folder</td></tr>
+        <tr><td><strong>Dump files</strong></td><td>Custom dump extractor (493 lines, 13 functions)</td><td>Detected by 9 signature patterns. Extracts ABEND header, PSW, registers, eyecatchers, module trace, AMPSLOG, MAS errors, TWA. 99.8% size reduction.</td><td>Structured diagnostic data (3K chars from 1.3M)</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h3>6.2 Chunking Strategy</h3>
+      <h4>HybridChunker Parameters</h4>
+      <table class="sm-tbl">
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Target chunk size</td><td>1,500 tokens (~6,000 chars)</td></tr>
+        <tr><td>Max chunk size</td><td>2,500 tokens</td></tr>
+        <tr><td>Overlap</td><td>200 characters</td></tr>
+        <tr><td>Section awareness</td><td>Heading hierarchy tracked</td></tr>
+        <tr><td>Content type tagging</td><td>procedure / definition / code / table / reference / overview</td></tr>
+      </table>
+
+      <h4>Haiku Metadata Enrichment (per chunk)</h4>
+      <table class="sm-tbl">
+        <tr><th>Field</th><th>How Extracted</th></tr>
+        <tr><td>entities</td><td>Haiku extracts TSS IDs, table names, program names, ABEND codes</td></tr>
+        <tr><td>topics</td><td>Haiku infers topic categories</td></tr>
+        <tr><td>content_type</td><td>Haiku classifies chunk type</td></tr>
+        <tr><td>section_title</td><td>Inferred from heading hierarchy</td></tr>
+        <tr><td>mech_domain</td><td>SHF, accounting, retention, RR16, OCIF, lending, etc.</td></tr>
+      </table>
+
+      <h3>6.3 Source Priority Tiers</h3>
+      <table class="sm-tbl">
+        <tr><th>Priority</th><th>S3 Folder</th><th>Boost</th></tr>
+        <tr><td>1-2</td><td>wiki dump/ · training/</td><td style="color:#00B050;font-weight:600">2.0×</td></tr>
+        <tr><td>3-5</td><td>mech documentation/ · code/ · historical/</td><td style="color:#2E75B6;font-weight:600">1.5×</td></tr>
+        <tr><td>6-9</td><td>mech files/ · tables/ · tools/ · software/</td><td style="color:#ED7D31;font-weight:600">1.2×</td></tr>
+        <tr><td>100</td><td>any other location</td><td style="color:#6C757D">1.0×</td></tr>
+      </table>
+
+      <div class="ib o">
+        <strong>BESS Replacement Bug (Fixed):</strong> The DOCX extractor had an O(n²) paragraph loop that took 13 minutes for a 355KB file. Every element threw "too many values to unpack (expected 2)" and was silently skipped — producing empty text. Fixed with O(1) dict lookup + content control extraction + XML fallback.
+      </div>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 8</span></div>
+</div>
+
+<!-- ═══ PAGE 9: EMBEDDING & INDEXING ═════════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>7. Embedding & Indexing — How Documents Are Stored in OpenSearch</h2>
+
+  <div class="cols">
+    <div class="col">
+      <h3>7.1 Embedding Generation (Lambda 03)</h3>
+      <div class="dia">
+        <svg width="100%" height="180" viewBox="0 0 440 180">
+          <rect x="5" y="5" width="100" height="38" rx="4" fill="#2E75B6"/>
+          <text x="55" y="21" text-anchor="middle" font-size="8" font-weight="600" fill="white">Load chunks</text>
+          <text x="55" y="33" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.7)">from S3 (streaming)</text>
+          <line x1="109" y1="24" x2="124" y2="24" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+          <rect x="129" y="5" width="100" height="38" rx="4" fill="#00B050"/>
+          <text x="179" y="21" text-anchor="middle" font-size="8" font-weight="600" fill="white">Titan V2 Embed</text>
+          <text x="179" y="33" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.7)">1024-dim · batch 25</text>
+          <line x1="233" y1="24" x2="248" y2="24" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+
+          <rect x="253" y="5" width="90" height="38" rx="4" fill="#00B050"/>
+          <text x="298" y="21" text-anchor="middle" font-size="8" font-weight="600" fill="white">Haiku Enrich</text>
+          <text x="298" y="33" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.7)">entities · topics</text>
+          <line x1="347" y1="24" x2="362" y2="24" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+          <rect x="367" y="5" width="65" height="38" rx="4" fill="#ED7D31"/>
+          <text x="399" y="21" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">Save S3</text>
+          <text x="399" y="33" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">.jsonl</text>
+
+          <!-- Batch handling -->
+          <rect x="5" y="55" width="427" height="55" rx="4" fill="#E8F4FD" stroke="#2E75B6" stroke-width=".5"/>
+          <text x="15" y="70" font-size="8" font-weight="600" fill="#003366">Batch Processing for Large Documents (>975 chunks)</text>
+          <text x="15" y="83" font-size="7.5" fill="#6C757D">• Chunks split into batches of 975 → each batch processed in one Lambda invocation</text>
+          <text x="15" y="95" font-size="7.5" fill="#6C757D">• Lambda 03 self-invokes for remaining batches (returns statusCode 202, not RuntimeError)</text>
+          <text x="15" y="107" font-size="7.5" fill="#6C757D">• embedding_batch_keys[] array passed to L04 so ALL batches are indexed (not just the last one)</text>
+
+          <!-- Protection -->
+          <rect x="5" y="120" width="427" height="55" rx="4" fill="#FFF3E8" stroke="#ED7D31" stroke-width=".5"/>
+          <text x="15" y="135" font-size="8" font-weight="600" fill="#003366">Protections</text>
+          <text x="15" y="148" font-size="7.5" fill="#6C757D">• Max input per chunk: 30,000 chars (~7,500 tokens). Truncated if exceeded.</text>
+          <text x="15" y="160" font-size="7.5" fill="#6C757D">• Token overflow: retry with -30% text each attempt (3 retries)</text>
+          <text x="15" y="172" font-size="7.5" fill="#6C757D">• Zero-vector protection: chunks producing all-zero embeddings excluded from indexing</text>
+        </svg>
+      </div>
+
+      <h3>7.2 OpenSearch Index Settings</h3>
+      <table class="sm-tbl">
+        <tr><th>Setting</th><th>Value</th></tr>
+        <tr><td>Index name</td><td>mechavatar-pdda1-ue1-dev-documents</td></tr>
+        <tr><td>Algorithm</td><td>HNSW (Hierarchical Navigable Small World)</td></tr>
+        <tr><td>Dimensions</td><td>1024 (Titan V2)</td></tr>
+        <tr><td>Space type</td><td>cosinesimil (cosine similarity)</td></tr>
+        <tr><td>ef_construction</td><td>128 (build quality)</td></tr>
+        <tr><td>m</td><td>24 (graph connectivity)</td></tr>
+        <tr><td>ef_search</td><td>100 (search quality)</td></tr>
+        <tr><td>Text analyzer</td><td>mech_analyzer: standard + lowercase + stop + snowball</td></tr>
+        <tr><td>Bulk batch size</td><td>100 docs per bulk request</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h3>7.3 OpenSearch Document Schema — 62 Fields Per Chunk</h3>
+      <table class="sm-tbl">
+        <tr><th>Category</th><th>Field</th><th>Type</th><th>Purpose</th></tr>
+        <tr><td rowspan="2"><strong>Content</strong></td><td>text</td><td>text (BM25)</td><td>Chunk content, keyword searchable</td></tr>
+        <tr><td>embedding</td><td>knn_vector 1024d</td><td>Dense vector for semantic KNN</td></tr>
+        <tr><td rowspan="3"><strong>Identity</strong></td><td>document_id</td><td>keyword</td><td>Links all chunks from same doc</td></tr>
+        <tr><td>chunk_id</td><td>keyword</td><td>Unique within document</td></tr>
+        <tr><td>chunk_index</td><td>integer</td><td>Order within document</td></tr>
+        <tr><td rowspan="4"><strong>Source</strong></td><td>file_name</td><td>keyword</td><td>Original filename for citations</td></tr>
+        <tr><td>file_type</td><td>keyword</td><td>docx, pdf, xlsx, etc.</td></tr>
+        <tr><td>s3_key</td><td>keyword</td><td>Full S3 path</td></tr>
+        <tr><td>s3_folder</td><td>keyword</td><td>Top-level folder for filtering</td></tr>
+        <tr><td rowspan="3"><strong>Search (NEW)</strong></td><td>doc_code</td><td>keyword</td><td>A-02-CRBUREXT, A-24-OPBN2</td></tr>
+        <tr><td>column_names</td><td>keyword</td><td>Table column headers</td></tr>
+        <tr><td>chunk_type</td><td>keyword</td><td>text / table / code</td></tr>
+        <tr><td rowspan="5"><strong>MECH</strong></td><td>entities</td><td>keyword[]</td><td>TSS IDs, table names, programs</td></tr>
+        <tr><td>bdd_tables</td><td>keyword[]</td><td>BDD* macro references</td></tr>
+        <tr><td>program_chain</td><td>keyword[]</td><td>COBOL/ASM program names</td></tr>
+        <tr><td>field_names</td><td>keyword[]</td><td>Field definitions (MY*, TWA*)</td></tr>
+        <tr><td>mech_domain</td><td>keyword</td><td>SHF, accounting, retention, etc.</td></tr>
+        <tr><td rowspan="2"><strong>Ranking</strong></td><td>source_priority</td><td>integer</td><td>1-100, used as score multiplier</td></tr>
+        <tr><td>retrieval_boost</td><td>float</td><td>0.5-2.0, feedback-adjusted</td></tr>
+        <tr><td rowspan="3"><strong>Context</strong></td><td>section_title</td><td>keyword</td><td>Inferred heading</td></tr>
+        <tr><td>page_number</td><td>integer</td><td>Source page number</td></tr>
+        <tr><td>content_type</td><td>keyword</td><td>procedure / definition / code / table</td></tr>
+        <tr><td rowspan="2"><strong>Flags</strong></td><td>has_table, has_code</td><td>boolean</td><td>Content type flags</td></tr>
+        <tr><td>doc_type_inferred</td><td>keyword</td><td>mainframe_dump (dump detection)</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 9</span></div>
+</div>
+
+<!-- ═══ PAGE 10: 15-STAGE RAG PIPELINE ══════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>8. Lambda 06 — 15-Stage RAG Pipeline (Per Question)</h2>
+  <p>Every question passes through 15 stages. Stages 2a/2b/2c execute in parallel. Total: <strong>7 Bedrock API calls + 1 OpenSearch query ≈ 28,000 tokens ≈ 2-8 seconds.</strong></p>
+
+  <div class="dia">
+    <svg width="100%" height="335" viewBox="0 0 960 335">
+      <!-- Stage 1 -->
+      <rect x="5" y="8" width="95" height="42" rx="4" fill="#6C757D"/>
+      <text x="52" y="23" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">STAGE 1</text>
+      <text x="52" y="35" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.85)">Cache Check</text>
+      <text x="52" y="45" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.6)">DDB SHA256 · 0 API</text>
+      <line x1="104" y1="29" x2="119" y2="29" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- Parallel block -->
+      <rect x="124" y="0" width="305" height="96" rx="5" fill="#E8F4FD" stroke="#2E75B6" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="276" y="13" text-anchor="middle" font-size="8" font-weight="700" fill="#003366">⚡ STAGES 2a/2b/2c — PARALLEL (ThreadPoolExecutor, 3 workers)</text>
+
+      <rect x="134" y="20" width="90" height="42" rx="4" fill="#00B050"/>
+      <text x="179" y="35" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">2a: Intent</text>
+      <text x="179" y="46" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Haiku → 11 types</text>
+      <text x="179" y="56" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.6)">1 API call · ~200 tok</text>
+
+      <rect x="234" y="20" width="90" height="42" rx="4" fill="#00B050"/>
+      <text x="279" y="35" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">2b: Embed</text>
+      <text x="279" y="46" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Titan V2 1024d</text>
+      <text x="279" y="56" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.6)">1 API call · ~200 tok</text>
+
+      <rect x="334" y="20" width="85" height="42" rx="4" fill="#00B050"/>
+      <text x="376" y="35" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">2c: Extract</text>
+      <text x="376" y="46" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Haiku → terms</text>
+      <text x="376" y="56" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.6)">1 API call · ~450 tok</text>
+
+      <text x="276" y="85" text-anchor="middle" font-size="7.5" font-weight="600" fill="#2E75B6">3 Bedrock API calls — ~200ms total (parallel)</text>
+
+      <line x1="433" y1="41" x2="450" y2="41" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- Stage 3 -->
+      <rect x="455" y="8" width="80" height="42" rx="4" fill="#2E75B6"/>
+      <text x="495" y="23" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">3: Entities</text>
+      <text x="495" y="35" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Regex extract</text>
+      <text x="495" y="45" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.6)">0 API · ~5ms</text>
+      <line x1="539" y1="29" x2="554" y2="29" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- Stage 4 -->
+      <rect x="559" y="8" width="88" height="42" rx="4" fill="#00B050"/>
+      <text x="603" y="23" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">4: HyDE</text>
+      <text x="603" y="35" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Haiku expand</text>
+      <text x="603" y="45" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.6)">1 API (conditional)</text>
+      <line x1="651" y1="29" x2="666" y2="29" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- Stage 5: SEARCH -->
+      <rect x="671" y="2" width="280" height="55" rx="6" fill="#003366" stroke="#00B050" stroke-width="2"/>
+      <text x="811" y="17" text-anchor="middle" font-size="8.5" font-weight="700" fill="#4A90D9">STAGE 5: Hybrid Search (OpenSearch)</text>
+      <text x="811" y="30" text-anchor="middle" font-size="8" fill="white">KNN Semantic (70%) + BM25 Keyword (30%)</text>
+      <text x="811" y="42" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.7)">doc_code^3.0 · bdd_tables^2.5 · key_terms^1.2 · source_priority boost</text>
+      <text x="811" y="52" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.5)">1 OpenSearch query · Top 20 chunks · score_mode: sum</text>
+
+      <!-- Arrow down to reranking -->
+      <line x1="811" y1="60" x2="811" y2="75" stroke="#2E75B6" stroke-width="1.5" marker-end="url(#a)"/>
+
+      <!-- ═══ RERANKING ROW ═══ -->
+      <rect x="5" y="105" width="945" height="62" rx="5" fill="#E8F4FD" stroke="#2E75B6" stroke-width="1"/>
+      <text x="15" y="118" font-size="9" font-weight="700" fill="#003366">RERANKING & CONTEXT PREPARATION (Stages 6-9)</text>
+
+      <rect x="15" y="125" width="120" height="32" rx="4" fill="#2E75B6"/>
+      <text x="75" y="138" text-anchor="middle" font-size="7" font-weight="600" fill="white">6: Doc Diversity</text>
+      <text x="75" y="150" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Best chunk/doc · 0 API</text>
+
+      <rect x="150" y="125" width="120" height="32" rx="4" fill="#2E75B6"/>
+      <text x="210" y="138" text-anchor="middle" font-size="7" font-weight="600" fill="white">7a: Entity Rerank</text>
+      <text x="210" y="150" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">In-memory boost · 0 API</text>
+
+      <rect x="285" y="125" width="155" height="32" rx="4" fill="#00B050"/>
+      <text x="362" y="138" text-anchor="middle" font-size="7" font-weight="600" fill="white">7b: Cross-Encoder (Haiku)</text>
+      <text x="362" y="150" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Score 12 chunks 0.0-1.0 · 1 API · ~800ms</text>
+
+      <rect x="455" y="125" width="145" height="32" rx="4" fill="#00B050"/>
+      <text x="527" y="138" text-anchor="middle" font-size="7" font-weight="600" fill="white">8: Context Compress (Haiku)</text>
+      <text x="527" y="150" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Remove irrelevant sentences · 1 API</text>
+
+      <rect x="615" y="125" width="120" height="32" rx="4" fill="#2E75B6"/>
+      <text x="675" y="138" text-anchor="middle" font-size="7" font-weight="600" fill="white">9: Reorder</text>
+      <text x="675" y="150" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Lost-in-middle fix · 0 API</text>
+
+      <rect x="750" y="122" width="190" height="38" rx="4" fill="white" stroke="#2E75B6" stroke-width="1"/>
+      <text x="845" y="137" text-anchor="middle" font-size="7.5" font-weight="600" fill="#003366">2 Haiku API calls total</text>
+      <text x="845" y="150" text-anchor="middle" font-size="7" fill="#6C757D">~2,000 input + 700 output tokens</text>
+
+      <!-- ═══ GENERATION ROW ═══ -->
+      <rect x="5" y="180" width="945" height="62" rx="5" fill="#FFF3E8" stroke="#ED7D31" stroke-width="1"/>
+      <text x="15" y="193" font-size="9" font-weight="700" fill="#003366">ANSWER GENERATION & VERIFICATION (Stages 10-14)</text>
+
+      <rect x="15" y="200" width="120" height="32" rx="4" fill="#2E75B6"/>
+      <text x="75" y="213" text-anchor="middle" font-size="7" font-weight="600" fill="white">10: Build Context</text>
+      <text x="75" y="225" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Labels + identifiers · 0 API</text>
+
+      <rect x="150" y="195" width="220" height="42" rx="6" fill="#003366" stroke="#00B050" stroke-width="2"/>
+      <text x="260" y="210" text-anchor="middle" font-size="9" font-weight="700" fill="#00B050">11: Sonnet Answer Generation</text>
+      <text x="260" y="222" text-anchor="middle" font-size="7.5" fill="white">Intent-aware prompt · max 6,000 output tokens</text>
+      <text x="260" y="232" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">1 API call · ~20K input + 2-6K output · 3-6 seconds</text>
+
+      <rect x="385" y="200" width="130" height="32" rx="4" fill="#ED7D31"/>
+      <text x="450" y="213" text-anchor="middle" font-size="7" font-weight="600" fill="white">12: Grounding Verify</text>
+      <text x="450" y="225" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Claims vs context · 0 API</text>
+
+      <rect x="530" y="200" width="130" height="32" rx="4" fill="#ED7D31"/>
+      <text x="595" y="213" text-anchor="middle" font-size="7" font-weight="600" fill="white">13-14: Confidence</text>
+      <text x="595" y="225" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">search×0.6 + ground×0.4</text>
+
+      <rect x="750" y="197" width="190" height="38" rx="4" fill="white" stroke="#ED7D31" stroke-width="1"/>
+      <text x="845" y="212" text-anchor="middle" font-size="8" font-weight="700" fill="#003366">1 Sonnet API call</text>
+      <text x="845" y="225" text-anchor="middle" font-size="7" fill="#6C757D">Most expensive stage (~80% of cost)</text>
+
+      <!-- ═══ STAGE 15 ═══ -->
+      <rect x="5" y="255" width="945" height="30" rx="5" fill="#E6F9EE" stroke="#00B050" stroke-width="1"/>
+      <text x="15" y="274" font-size="9" font-weight="700" fill="#003366">STAGE 15: Cache + Memory</text>
+      <text x="260" y="274" font-size="8" fill="#6C757D">DynamoDB cache write (24h TTL, conf ≥ 0.6) + Lambda 09 async memory write (0 Bedrock API calls)</text>
+
+      <!-- ═══ TOTAL SUMMARY ═══ -->
+      <rect x="5" y="298" width="945" height="30" rx="6" fill="#003366"/>
+      <text x="480" y="312" text-anchor="middle" font-size="10" font-weight="700" fill="white">TOTAL PER QUESTION: 7 Bedrock API calls · 1 OpenSearch query · ~28,000 tokens · 2-8 seconds</text>
+      <text x="480" y="325" text-anchor="middle" font-size="8" fill="#4A90D9">Haiku ×3 (parallel) + Haiku ×1 (HyDE) + Haiku ×1 (CE) + Haiku ×1 (compress) + Sonnet ×1 (answer) + Titan ×1 (embed, parallel)</text>
+    </svg>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 10</span></div>
+</div>
+
+<!-- ═══ PAGE 11: HYBRID SEARCH STRATEGY ═════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>9. Hybrid Search Strategy — How Answers Are Found</h2>
+
+  <div class="cols">
+    <div class="col">
+      <h3>9.1 Search Architecture Diagram</h3>
+      <div class="dia">
+        <svg width="100%" height="270" viewBox="0 0 440 270">
+          <rect x="150" y="2" width="140" height="30" rx="15" fill="#003366"/>
+          <text x="220" y="21" text-anchor="middle" font-size="9" font-weight="700" fill="white">User Query (Embedded)</text>
+
+          <line x1="180" y1="35" x2="100" y2="55" stroke="#2E75B6" stroke-width="1.2"/>
+          <line x1="260" y1="35" x2="340" y2="55" stroke="#2E75B6" stroke-width="1.2"/>
+
+          <!-- KNN -->
+          <rect x="15" y="58" width="175" height="48" rx="5" fill="#2E75B6"/>
+          <text x="102" y="74" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">KNN Semantic Search (70%)</text>
+          <text x="102" y="86" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Cosine similarity on 1024-dim vectors</text>
+          <text x="102" y="97" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">k = top_k × 5 (over-fetch for diversity)</text>
+
+          <!-- BM25 -->
+          <rect x="250" y="58" width="180" height="48" rx="5" fill="#2E75B6"/>
+          <text x="340" y="74" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">BM25 Keyword Search (30%)</text>
+          <text x="340" y="86" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.8)">Multi-match across 5 fields</text>
+          <text x="340" y="97" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.6)">doc_code^3 · bdd_tables^2.5 · key_terms^1.2</text>
+
+          <line x1="102" y1="110" x2="220" y2="128" stroke="#2E75B6" stroke-width="1"/>
+          <line x1="340" y1="110" x2="220" y2="128" stroke="#2E75B6" stroke-width="1"/>
+
+          <!-- Function score -->
+          <rect x="100" y="130" width="240" height="38" rx="5" fill="#003366"/>
+          <text x="220" y="146" text-anchor="middle" font-size="8.5" font-weight="700" fill="white">function_score Boosting</text>
+          <text x="220" y="160" text-anchor="middle" font-size="7" fill="#4A90D9">source_priority × entity_match × doc_type_boost</text>
+
+          <line x1="220" y1="172" x2="220" y2="185" stroke="#00B050" stroke-width="1.5" marker-end="url(#ag)"/>
+
+          <!-- Boost tiers -->
+          <rect x="10" y="190" width="85" height="28" rx="4" fill="#00B050"/>
+          <text x="52" y="205" text-anchor="middle" font-size="7" font-weight="600" fill="white">Wiki 2.0×</text>
+          <text x="52" y="214" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Priority 1-2</text>
+
+          <rect x="105" y="190" width="85" height="28" rx="4" fill="#2E75B6"/>
+          <text x="147" y="205" text-anchor="middle" font-size="7" font-weight="600" fill="white">Docs 1.5×</text>
+          <text x="147" y="214" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Priority 3-5</text>
+
+          <rect x="200" y="190" width="85" height="28" rx="4" fill="#6C757D"/>
+          <text x="242" y="205" text-anchor="middle" font-size="7" font-weight="600" fill="white">Tables 1.2×</text>
+          <text x="242" y="214" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Priority 6-9</text>
+
+          <rect x="295" y="190" width="85" height="28" rx="4" fill="#ED7D31"/>
+          <text x="337" y="205" text-anchor="middle" font-size="7" font-weight="600" fill="white">Dump 2.5×</text>
+          <text x="337" y="214" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">dump queries</text>
+
+          <line x1="220" y1="222" x2="220" y2="238" stroke="#003366" stroke-width="1.5" marker-end="url(#a)"/>
+
+          <rect x="100" y="240" width="240" height="25" rx="6" fill="#003366" stroke="#00B050" stroke-width="2"/>
+          <text x="220" y="257" text-anchor="middle" font-size="9" font-weight="700" fill="white">Top 20 Chunks Retrieved</text>
+        </svg>
+      </div>
+    </div>
+    <div class="col">
+      <h3>9.2 BM25 Field Boost Weights</h3>
+      <table>
+        <tr><th>Field</th><th>Boost</th><th>Why</th></tr>
+        <tr><td>doc_code</td><td style="color:#00B050;font-weight:700">3.0×</td><td>Exact doc identifier (A-02-CRBUREXT). Highest precision — user knows the exact doc code.</td></tr>
+        <tr><td>bdd_tables</td><td style="color:#00B050;font-weight:700">2.5×</td><td>BDD macro names (BDDDABI). Critical for table structure queries.</td></tr>
+        <tr><td>program_chain</td><td style="color:#2E75B6;font-weight:700">2.0×</td><td>COBOL/ASM program names (MOPIC5A, MBCIAA).</td></tr>
+        <tr><td>field_names</td><td style="color:#2E75B6;font-weight:700">2.0×</td><td>TWA fields, MY* tables, MECH field definitions.</td></tr>
+        <tr><td>file_name</td><td style="color:#6C757D;font-weight:600">1.5×</td><td>Document filename match for directed queries.</td></tr>
+        <tr><td>key_terms</td><td style="color:#6C757D;font-weight:600">1.2×</td><td>Haiku-extracted key terms from chunk metadata.</td></tr>
+        <tr><td>column_names</td><td>1.0×</td><td>Table column headers for schema queries.</td></tr>
+        <tr><td>text</td><td>1.0×</td><td>Default full-text search on chunk content.</td></tr>
+      </table>
+
+      <h3>9.3 Entity Matching</h3>
+      <p>Regex-extracted entities from the query are matched against 4 OpenSearch fields with dedicated boosts:</p>
+      <table class="sm-tbl">
+        <tr><th>Entity Type</th><th>Pattern Example</th><th>Matched Against</th></tr>
+        <tr><td>TSS IDs</td><td>ABC1234</td><td>entities[]</td></tr>
+        <tr><td>BDD tables</td><td>BDDDABI, BDDTA29</td><td>bdd_tables[] (2.5×)</td></tr>
+        <tr><td>Programs</td><td>MOPIC5A, MBCIAA</td><td>program_chain[] (2.0×)</td></tr>
+        <tr><td>Fields</td><td>MYPRDA, TWASPDA</td><td>field_names[] (2.0×)</td></tr>
+        <tr><td>ABEND codes</td><td>SOC7, ASRA, AEI0</td><td>entities[]</td></tr>
+        <tr><td>Job names</td><td>MECH0001</td><td>entities[]</td></tr>
+      </table>
+
+      <h3>9.4 Why Hybrid > Pure Semantic</h3>
+      <div class="ib b">
+        <strong>Semantic alone misses exact identifiers.</strong> "Show me BDDDABI table structure" — the embedding for this query is close to "database table" generically, but BM25 on the <code>bdd_tables</code> field hits the exact chunk containing BDDDABI. Without BM25, the top results might be any table documentation, not the specific BDD macro.
+      </div>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 11</span></div>
+</div>
+
+<!-- ═══ PAGE 12: RERANKING + GROUNDING ══════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+
+  <div class="cols">
+    <div class="col">
+      <h2>10. Reranking, Grounding & Confidence</h2>
+
+      <h3>10.1 Multi-Stage Reranking Pipeline</h3>
+      <table>
+        <tr><th>Stage</th><th>Method</th><th>What It Does</th><th>Cost</th></tr>
+        <tr><td><strong>6: Diversity</strong></td><td>In-memory</td><td>Collects best chunk per unique document first. Prevents one high-scoring file from dominating all slots. Critical for cross-document synthesis.</td><td>~1ms · 0 API</td></tr>
+        <tr><td><strong>7a: Entity</strong></td><td>In-memory</td><td>Boosts chunks containing query entities. Score × (1 + 0.1 × entity_count × 1.5). Fast deterministic boost applied before expensive cross-encoder.</td><td>~5ms · 0 API</td></tr>
+        <tr><td><strong>7b: Cross-Encoder</strong></td><td>Haiku LLM</td><td>Haiku scores each of top 12 chunks 0.0-1.0 for direct relevance. Final = 0.4 × retrieval + 0.6 × cross_encoder. Chunks beyond 12 get neutral 0.5.</td><td>~800ms · 1 API</td></tr>
+        <tr><td><strong>8: Compress</strong></td><td>Haiku LLM</td><td>Removes sentences from each chunk that aren't relevant to the query. Max 4,000 compressed tokens. Reduces noise in Sonnet context window.</td><td>~300ms · 1 API</td></tr>
+        <tr><td><strong>9: Reorder</strong></td><td>In-memory</td><td>Lost-in-middle mitigation: best chunks at start and end of context. LLMs attend more to beginning and end of long inputs.</td><td>~1ms · 0 API</td></tr>
+      </table>
+
+      <h3>10.2 Grounding Verification</h3>
+      <table>
+        <tr><th>Status</th><th>Meaning</th><th>Action</th></tr>
+        <tr><td style="color:#00B050;font-weight:600">fully_grounded</td><td>All claims found in context</td><td>Answer returned as-is</td></tr>
+        <tr><td style="color:#2E75B6;font-weight:600">partially_grounded</td><td>Most claims found, some gaps</td><td>Note about missing info appended</td></tr>
+        <tr><td style="color:#ED7D31;font-weight:600">weakly_grounded</td><td>Claims not clearly in context</td><td>Warning: "may contain unverified info"</td></tr>
+        <tr><td style="color:#C00000;font-weight:600">ungrounded</td><td>Fabricated / hallucinated</td><td>Strong warning. Confidence set <0.5</td></tr>
+      </table>
+
+      <h3>10.3 Confidence Formula</h3>
+      <div class="ib b">
+        <strong>Final confidence = search_conf × 0.6 + groundedness × 0.4</strong><br>
+        Where search_conf = avg_retrieval_score × 0.6 + source_coverage × 0.2 + intent_confidence × 0.2<br>
+        Normalized from raw OpenSearch scores (2-30 range) to 0.0-1.0 scale.
+      </div>
+    </div>
+    <div class="col">
+      <h2>11. Frontend Integration & API</h2>
+
+      <h3>11.1 Request Flow Diagram</h3>
+      <div class="dia">
+        <svg width="100%" height="75" viewBox="0 0 440 75">
+          <rect x="5" y="10" width="62" height="40" rx="4" fill="#4472C4"/>
+          <text x="36" y="28" text-anchor="middle" font-size="7" font-weight="600" fill="white">Browser</text>
+          <text x="36" y="40" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Angular</text>
+          <line x1="71" y1="30" x2="83" y2="30" stroke="#ED7D31" stroke-width="1" marker-end="url(#ao)"/>
+
+          <rect x="88" y="10" width="62" height="40" rx="4" fill="#ED7D31"/>
+          <text x="119" y="28" text-anchor="middle" font-size="7" font-weight="600" fill="white">BMO Proxy</text>
+          <text x="119" y="40" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">pnbb-dev</text>
+          <line x1="154" y1="30" x2="166" y2="30" stroke="#ED7D31" stroke-width="1" marker-end="url(#ao)"/>
+
+          <rect x="171" y="10" width="55" height="40" rx="4" fill="#ED7D31"/>
+          <text x="198" y="28" text-anchor="middle" font-size="7" font-weight="600" fill="white">Nginx</text>
+          <text x="198" y="40" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">/api→/dev</text>
+          <line x1="230" y1="30" x2="242" y2="30" stroke="#2E75B6" stroke-width="1" marker-end="url(#a)"/>
+
+          <rect x="247" y="10" width="62" height="40" rx="4" fill="#2E75B6"/>
+          <text x="278" y="28" text-anchor="middle" font-size="7" font-weight="600" fill="white">API GW</text>
+          <text x="278" y="40" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.7)">Private</text>
+          <line x1="313" y1="30" x2="325" y2="30" stroke="#2E75B6" stroke-width="1" marker-end="url(#a)"/>
+
+          <rect x="330" y="5" width="100" height="50" rx="5" fill="#003366" stroke="#2E75B6" stroke-width="1.5"/>
+          <text x="380" y="24" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">L08 → L06</text>
+          <text x="380" y="36" text-anchor="middle" font-size="6.5" fill="#4A90D9">JWT · 15-stage RAG</text>
+          <text x="380" y="47" text-anchor="middle" font-size="6" fill="rgba(255,255,255,.5)">7 API calls</text>
+        </svg>
+      </div>
+
+      <h3>11.2 All API Endpoints</h3>
+      <table class="sm-tbl">
+        <tr><th>Method</th><th>Path</th><th>What It Does</th></tr>
+        <tr><td>POST</td><td>/auth/login</td><td>Login → JWT token (email+password)</td></tr>
+        <tr><td>POST</td><td>/auth/register</td><td>Create user → JWT token</td></tr>
+        <tr><td>POST</td><td>/auth/refresh</td><td>Refresh JWT before expiry</td></tr>
+        <tr><td><strong>POST</strong></td><td><strong>/chat/query</strong></td><td><strong>Ask question → RAG answer + sources</strong></td></tr>
+        <tr><td>GET</td><td>/chat/history/{session_id}</td><td>Conversation history for session</td></tr>
+        <tr><td>POST</td><td>/documents/upload</td><td>Get presigned S3 URL for upload</td></tr>
+        <tr><td>GET</td><td>/documents/list</td><td>List all documents with status</td></tr>
+        <tr><td>GET</td><td>/documents/status/{id}</td><td>Pipeline status for document</td></tr>
+        <tr><td>DELETE</td><td>/documents/{id}</td><td>Delete from OS + DynamoDB</td></tr>
+        <tr><td>GET</td><td>/health</td><td>Health check</td></tr>
+      </table>
+
+      <h2>12. Authentication & Security</h2>
+      <table class="sm-tbl">
+        <tr><th>Layer</th><th>Mechanism</th></tr>
+        <tr><td><strong>Auth</strong></td><td>DynamoDB JWT (HS256, 8h expiry). No Cognito.</td></tr>
+        <tr><td><strong>Network</strong></td><td>Private API GW — VPC endpoint only</td></tr>
+        <tr><td><strong>Transport</strong></td><td>TLS 1.2 everywhere</td></tr>
+        <tr><td><strong>CORS</strong></td><td>Origin whitelist in L08 + Nginx</td></tr>
+        <tr><td><strong>Rate limit</strong></td><td>Nginx: 300 req/min/IP. L08: 10 req/60s/user</td></tr>
+        <tr><td><strong>CSP</strong></td><td>connect-src restricted to API GW + BMO proxy</td></tr>
+        <tr><td><strong>Dev mode</strong></td><td>ALLOW_ANONYMOUS=true (auto-create users)</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 12</span></div>
+</div>
+
+<!-- ═══ PAGE 13: DUMP + TOKEN BUDGET ════════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+
+  <div class="cols">
+    <div class="col">
+      <h2>13. Dump Analysis Feature (NEW)</h2>
+      <p>Purpose-built mainframe ABEND debugging capability — not available in generic RAG platforms.</p>
+
+      <h3>13.1 How Dump Detection Works</h3>
+      <div class="dia">
+        <svg width="100%" height="145" viewBox="0 0 440 145">
+          <rect x="5" y="5" width="88" height="32" rx="4" fill="#4472C4"/>
+          <text x="49" y="25" text-anchor="middle" font-size="7.5" font-weight="600" fill="white">Upload (.any)</text>
+          <line x1="97" y1="21" x2="112" y2="21" stroke="#2E75B6" stroke-width="1.2" marker-end="url(#a)"/>
+
+          <rect x="117" y="5" width="85" height="32" rx="4" fill="#2E75B6"/>
+          <text x="159" y="18" text-anchor="middle" font-size="7" font-weight="600" fill="white">L02 Extract</text>
+          <text x="159" y="30" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.7)">text → scan</text>
+          <line x1="206" y1="21" x2="221" y2="21" stroke="#ED7D31" stroke-width="1.2" marker-end="url(#ao)"/>
+
+          <rect x="226" y="2" width="110" height="38" rx="5" fill="#ED7D31"/>
+          <text x="281" y="17" text-anchor="middle" font-size="7.5" font-weight="700" fill="white">Dump Detection</text>
+          <text x="281" y="29" text-anchor="middle" font-size="6.5" fill="rgba(255,255,255,.8)">≥3 of 9 signatures</text>
+          <text x="281" y="38" text-anchor="middle" font-size="5.5" fill="rgba(255,255,255,.6)">ABEND·PSW·Registers·Hex</text>
+          <line x1="340" y1="21" x2="355" y2="21" stroke="#003366" stroke-width="1.2" marker-end="url(#a)"/>
+
+          <rect x="360" y="2" width="75" height="38" rx="4" fill="#003366"/>
+          <text x="397" y="17" text-anchor="middle" font-size="7" font-weight="600" fill="white">Structured</text>
+          <text x="397" y="29" text-anchor="middle" font-size="6.5" fill="#4A90D9">Extraction</text>
+
+          <!-- Extracted fields -->
+          <rect x="5" y="48" width="430" height="42" rx="3" fill="#E8F4FD" stroke="#2E75B6" stroke-width=".5"/>
+          <text x="15" y="61" font-size="7.5" font-weight="600" fill="#003366">Extracted Fields (13 functions):</text>
+          <text x="15" y="73" font-size="7" fill="#6C757D">ABEND header · PSW values · Register contents · Eyecatchers (RSA$, SPHD) · Module trace</text>
+          <text x="15" y="84" font-size="7" fill="#6C757D">AMPSLOG entries · MAS error codes · TWA fields · Save area chain · Program names</text>
+
+          <!-- Size reduction -->
+          <rect x="5" y="100" width="175" height="38" rx="4" fill="#C00000"/>
+          <text x="92" y="115" text-anchor="middle" font-size="8" font-weight="700" fill="white">Before: 1,341,126 chars</text>
+          <text x="92" y="128" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.7)">224 chunks · 224 Titan calls</text>
+
+          <text x="195" y="125" font-size="14" font-weight="700" fill="#00B050">→</text>
+
+          <rect x="220" y="100" width="175" height="38" rx="4" fill="#00B050"/>
+          <text x="307" y="115" text-anchor="middle" font-size="8" font-weight="700" fill="white">After: 3,060 chars</text>
+          <text x="307" y="128" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.7)">1 chunk · 1 Titan call · 99.8% ↓</text>
+        </svg>
+      </div>
+
+      <h3>13.2 Retrieval: DUMP_ANALYSIS Intent</h3>
+      <table class="sm-tbl">
+        <tr><th>Aspect</th><th>Configuration</th></tr>
+        <tr><td>Trigger queries</td><td>ABEND, SOC7, ASRA, AEI0, SP94-99, U2025, dump analysis</td></tr>
+        <tr><td>top_k</td><td>20 (highest of all intents)</td></tr>
+        <tr><td>max_tokens</td><td>6,000 (highest of all intents)</td></tr>
+        <tr><td>Search boost</td><td>doc_type_inferred="mainframe_dump" → 2.5×</td></tr>
+        <tr><td>HyDE</td><td>Skipped (direct search)</td></tr>
+      </table>
+
+      <h4>5-Step Analysis Prompt for Sonnet:</h4>
+      <ol style="font-size:8px; padding-left:14px;">
+        <li>Identify ABEND type and program</li>
+        <li>Locate failing module from eyecatchers (RSA$, SPHD)</li>
+        <li>Determine instruction offset (PSW - R11)</li>
+        <li>Analyze root cause from BDD fields, MAS errors, data exceptions</li>
+        <li>Provide resolution steps and preventive measures</li>
+      </ol>
+    </div>
+    <div class="col">
+      <h2>14. Token Budget & API Call Summary</h2>
+
+      <h3>14.1 Per Question Cost (Lambda 06)</h3>
+      <table>
+        <tr><th>Stage</th><th>Model</th><th>Input Tokens</th><th>Output Tokens</th><th>API Calls</th></tr>
+        <tr><td>2a: Intent</td><td>Haiku</td><td>~200</td><td>~50</td><td>1</td></tr>
+        <tr><td>2b: Embed</td><td>Titan V2</td><td>~200</td><td>vector only</td><td>1</td></tr>
+        <tr><td>2c: Extract</td><td>Haiku</td><td>~300</td><td>~150</td><td>1</td></tr>
+        <tr><td>4: HyDE</td><td>Haiku</td><td>~400</td><td>~200</td><td>1 (cond.)</td></tr>
+        <tr><td>5: Search</td><td>OpenSearch</td><td>—</td><td>—</td><td>1 OS query</td></tr>
+        <tr><td>7b: CE</td><td>Haiku</td><td>~2,000</td><td>~100</td><td>1</td></tr>
+        <tr><td>8: Compress</td><td>Haiku</td><td>~1,000</td><td>~600</td><td>1</td></tr>
+        <tr><td><strong>11: Answer</strong></td><td><strong>Sonnet</strong></td><td><strong>~20,000</strong></td><td><strong>~2-6K</strong></td><td><strong>1</strong></td></tr>
+        <tr style="background:#E8F4FD;"><td colspan="2"><strong>TOTAL</strong></td><td><strong>~24,000</strong></td><td><strong>~3-6K</strong></td><td><strong>7 Bedrock + 1 OS</strong></td></tr>
+      </table>
+
+      <h3>14.2 Per Document Cost (Ingestion)</h3>
+      <table class="sm-tbl">
+        <tr><th>Stage</th><th>Model</th><th>Tokens (150 chunks avg)</th></tr>
+        <tr><td>L02: Chunk metadata × 150</td><td>Haiku</td><td>~112,500</td></tr>
+        <tr><td>L03: Embed × 150</td><td>Titan V2</td><td>~225,000</td></tr>
+        <tr style="background:#E8F4FD;"><td><strong>TOTAL</strong></td><td></td><td><strong>~340,000 tokens</strong></td></tr>
+      </table>
+
+      <h3>14.3 Protections</h3>
+      <table class="sm-tbl">
+        <tr><th>Protection</th><th>Mechanism</th></tr>
+        <tr><td>Titan max input</td><td>30K chars truncation per chunk</td></tr>
+        <tr><td>Sonnet max output</td><td>6,000 tokens (MAX_TOKENS env)</td></tr>
+        <tr><td>Haiku CE cap</td><td>500 chars/chunk × 12 max</td></tr>
+        <tr><td>Context ceiling</td><td>MAX_COMPRESSED_TOKENS=4,000</td></tr>
+        <tr><td>Bedrock throttle</td><td>Token bucket + backoff (2s/4s/8s)</td></tr>
+        <tr><td>Circuit breaker</td><td>5 failures → 30s recovery</td></tr>
+        <tr><td>Haiku temperature</td><td>0 (deterministic)</td></tr>
+        <tr><td>Sonnet temperature</td><td>0.2 (low variance)</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 13</span></div>
+</div>
+
+<!-- ═══ PAGE 14: DEPLOYMENT + MONITORING ═════════════════════════════════ -->
+<div class="pg">
+  <div class="phdr"><span>MechAvatar System Architecture v3.0</span><span>CONFIDENTIAL</span></div>
+  <h2>15. Deployment, Monitoring & Operations</h2>
+
+  <div class="cols">
+    <div class="col">
+      <h3>15.1 DEV Account Infrastructure</h3>
+      <table>
+        <tr><th>Component</th><th>Value</th></tr>
+        <tr><td>AWS Account</td><td>966245098051 (DEV)</td></tr>
+        <tr><td>Region</td><td>us-east-1</td></tr>
+        <tr><td>API Gateway</td><td>xgak1o997f (Private REST, stage: dev)</td></tr>
+        <tr><td>Frontend URL</td><td>https://pnbb-dev.opexec.api.devhcloud.bmogc.net/dev-Mechavatar/</td></tr>
+        <tr><td>S3 Bucket</td><td>mechavatar-pdda1-ue1-dev-s3-inbound</td></tr>
+        <tr><td>OpenSearch</td><td>AOSS: er5u2xnmsjamsy8yr7d8</td></tr>
+        <tr><td>Step Function</td><td>mechavatar-pdda1-ue1-dev-document-processing-stepfn</td></tr>
+        <tr><td>IAM Role</td><td>mechavatar-pdda1-ue1-dev-lambda-role</td></tr>
+      </table>
+
+      <h3>15.2 Lambda Configuration Summary</h3>
+      <table class="sm-tbl">
+        <tr><th>Lambda</th><th>Memory</th><th>Timeout</th><th>Key Settings</th></tr>
+        <tr><td>L01 Router</td><td>512 MB</td><td>300s</td><td>MAX_SF_RETRIES=4</td></tr>
+        <tr><td>L02 Extractor</td><td>3008 MB</td><td>900s</td><td>All 12 extractors + dump</td></tr>
+        <tr><td>L03 Embed</td><td>2048 MB</td><td>600s</td><td>BATCH_SIZE=25, self-invoke</td></tr>
+        <tr><td>L04 Index</td><td>2048 MB</td><td>600s</td><td>Bulk 100, AWS4Auth refresh</td></tr>
+        <tr><td>L05 Metadata</td><td>1024 MB</td><td>120s</td><td>Reprocess action</td></tr>
+        <tr><td><strong>L06 Query</strong></td><td><strong>3008 MB</strong></td><td><strong>120s</strong></td><td><strong>18 env vars (893B / 4KB limit)</strong></td></tr>
+        <tr><td>L07 Memory</td><td>512 MB</td><td>30s</td><td>MAX_MEMORY_ITEMS=20</td></tr>
+        <tr><td>L08 API</td><td>1024 MB</td><td>60s</td><td>ALLOW_ANONYMOUS, JWT_SECRET</td></tr>
+        <tr><td>L09 Writer</td><td>512 MB</td><td>30s</td><td>Async only</td></tr>
+        <tr><td>L10 Doc</td><td>1024 MB</td><td>300s</td><td>antiword→OLE→binary fallback</td></tr>
+      </table>
+
+      <h3>15.3 DynamoDB Tables</h3>
+      <table class="sm-tbl">
+        <tr><th>Table Name</th><th>PK</th><th>Purpose</th></tr>
+        <tr><td>mechavatar-*-mech-documents-metadata</td><td>doc_id + version</td><td>Document status tracking</td></tr>
+        <tr><td>mechavatar-*-processing-pipeline</td><td>document_id</td><td>Pipeline state machine</td></tr>
+        <tr><td>mechavatar-*-mech-users</td><td>email</td><td>User auth (JWT)</td></tr>
+        <tr><td>mechavatar-*-mech-user-sessions</td><td>session_id</td><td>Conversation memory</td></tr>
+        <tr><td>mechavatar-*-mech-system-config</td><td>cache_key</td><td>Query cache (24h TTL)</td></tr>
+        <tr><td>mechavatar-*-mech-rate-limits</td><td>user_id</td><td>Per-user rate limiting</td></tr>
+      </table>
+    </div>
+    <div class="col">
+      <h3>15.4 Monitoring & Observability</h3>
+      <table>
+        <tr><th>Signal</th><th>Where to Look</th><th>What to Check</th></tr>
+        <tr><td><strong>Pipeline status</strong></td><td>DynamoDB documents-metadata</td><td>processing_status field: pending → extracting → chunking → embedding → indexed</td></tr>
+        <tr><td><strong>Failed docs</strong></td><td>DynamoDB where status=failed</td><td>error_details field has full error message</td></tr>
+        <tr><td><strong>Lambda logs</strong></td><td>CloudWatch /aws/lambda/{name}</td><td>Structured JSON with correlation_id for cross-Lambda tracing</td></tr>
+        <tr><td><strong>Step Function</strong></td><td>SF Console → execution history</td><td>Visual timeline, input/output per state, error at exact step</td></tr>
+        <tr><td><strong>Answer quality</strong></td><td>API response JSON</td><td>confidence, grounding_status, unique_documents, cross_encoder_reranked</td></tr>
+        <tr><td><strong>Token usage</strong></td><td>L06 response metadata</td><td>input_tokens, output_tokens per question</td></tr>
+        <tr><td><strong>Source priority</strong></td><td>L04 CloudWatch</td><td>Each chunk logs: file={}, s3_folder={}, source_priority={N}</td></tr>
+      </table>
+
+      <h3>15.5 Error Handling Summary</h3>
+      <table class="sm-tbl">
+        <tr><th>Failure</th><th>How Handled</th></tr>
+        <tr><td>Bedrock throttling</td><td>Token bucket + exponential backoff (3×)</td></tr>
+        <tr><td>Bedrock outage</td><td>Circuit breaker: 5 fails → 30s recovery</td></tr>
+        <tr><td>SF execution limit</td><td>4 retries (2s/4s/8s/16s), then DDB pending_retry</td></tr>
+        <tr><td>Large PDF timeout</td><td>Batch extraction (150 pages/batch)</td></tr>
+        <tr><td>OpenSearch STS expiry</td><td>AWS4Auth rebuilt per invocation</td></tr>
+        <tr><td>L06 failure in L08</td><td>Falls back to L08 local RAG path</td></tr>
+        <tr><td>Empty extraction</td><td>Skipped path in SF (not crash)</td></tr>
+        <tr><td>All Lambda errors</td><td>SF Catch → HandleError → MarkFailed</td></tr>
+      </table>
+
+      <h3>15.6 Re-Index Procedure</h3>
+      <ol style="font-size:8px; padding-left:14px;">
+        <li>Invoke L04: <code>{"action":"cleanup","clear_pipeline":true}</code></li>
+        <li>L04 auto-recreates indexes with correct mapping</li>
+        <li>Re-upload all documents to S3 (or L05 reprocess_all)</li>
+        <li>Monitor DynamoDB until all status=indexed</li>
+        <li>Test: 5 sample questions → verify citations, source_priority, confidence</li>
+      </ol>
+
+      <h3>15.7 Bulk Ingestion Scale</h3>
+      <table class="sm-tbl">
+        <tr><th>Metric</th><th>Estimate</th></tr>
+        <tr><td>Total files</td><td>~25,500 (25K code + 500 docs)</td></tr>
+        <tr><td>Total size</td><td>~3.5 GB</td></tr>
+        <tr><td>Expected chunks</td><td>~200,000</td></tr>
+        <tr><td>OpenSearch index</td><td>~1.6 GB vectors + ~500 MB text</td></tr>
+        <tr><td>Estimated time (500 concurrent SF)</td><td>~38 minutes</td></tr>
+        <tr><td>Upload in batches of</td><td>500 files (SF limit: 1,000 concurrent)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin-top:10px; padding-top:8px; border-top:2px solid #2E75B6;">
+    <span style="font-size:10px; color:#6C757D; font-style:italic;">— End of Document — MechAvatar System Architecture v3.0 — March 2026 —</span>
+  </div>
+  <div class="pftr"><span>BMO Financial Group — MECH Platform</span><span>Page 14</span></div>
+</div>
+
+</body>
+</html>
